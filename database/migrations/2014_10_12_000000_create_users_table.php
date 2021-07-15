@@ -19,6 +19,22 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('licao_1_1')->nullable();
+            $table->string('licao_1_2')->nullable();
+            $table->string('licao_1_3')->nullable();
+            $table->string('licao_1_4')->nullable();
+            $table->string('licao_1_5')->nullable();
+            $table->string('licao_2_1')->nullable();
+            $table->string('licao_2_2')->nullable();
+            $table->string('licao_2_3')->nullable();
+            $table->string('licao_2_4')->nullable();
+            $table->string('licao_2_5')->nullable();
+            $table->string('licao_3_1')->nullable();
+            $table->string('licao_3_2')->nullable();
+            $table->string('licao_3_3')->nullable();
+            $table->string('licao_3_4')->nullable();
+            $table->string('licao_3_5')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });

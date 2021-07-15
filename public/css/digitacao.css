@@ -1,0 +1,272 @@
+.blink {
+    border-bottom: #ff0000 solid 2px;
+}
+.blink2 {
+    border-bottom: #ffffff solid 1px;
+}
+.texto_principal {
+    text-align: center;
+    font-size: 22px;
+    font-family: "Roboto Mono", monospace;
+    letter-spacing: 1px;
+    color: #555555;
+    margin-bottom: 0;
+}
+.div-texto {
+    min-height: 150px;
+}
+.precisao {
+    font-size: 30px;
+    color: #ff640a;
+}
+.letra_certa {
+    background-color: #32bb6d !important;
+}
+.letra_errada {
+    background-color: #b90101 !important;
+}
+.text-gray {
+    font-size: 18px;
+    color: #858484;
+    margin-right: 19px;
+    padding: 0 5px;
+    cursor: default;
+}
+.link {
+    font-size: 18px;
+    color: #858484;
+    margin-right: 19px;
+    border: 1px solid;
+    padding: 0 5px;
+}
+.link:hover {
+    font-size: 18px;
+    color: #ff640a;
+    text-decoration: none;
+}
+
+.text-gray:hover {
+    text-decoration: none;
+    color: #858484;
+    cursor: default;
+}
+.div-licoes {
+    text-align: center;
+    font-size: 15px;
+}
+.div-licoes2 {
+    border-top: 1px solid #858484;
+    text-align: center;
+    font-size: 12px;
+    margin-top: 3px;
+    padding-top: 3px;
+    margin-bottom: 3px;
+}
+.div-licoes a {
+    font-size: 18px;
+    color: #858484;
+    border: 1px solid;
+    padding: 0 5px;
+}
+.div-licoes a:hover {
+    font-size: 18px;
+    color: #ff640a;
+    text-decoration: none;
+}
+.atual a {
+    color: #ff640a;
+}
+.nav-item a.atual {
+    color: #ff640a;
+}
+
+.bol-1 {
+    top: 37px;
+    left: 4px;
+    position: absolute;
+}
+.bol-2 {
+    top: 20px;
+    left: 36px;
+    position: absolute;
+}
+.bol-3 {
+    top: 12px;
+    left: 69px;
+    position: absolute;
+}
+.bol-4 {
+    top: 20px;
+    left: 99px;
+    position: absolute;
+}
+.bol-5 {
+    top: 88px;
+    left: 143px;
+    position: absolute;
+}
+.bol-6 {
+    top: 88px;
+    right: 143px;
+    position: absolute;
+}
+.bol-7 {
+    top: 20px;
+    right: 99px;
+    position: absolute;
+}
+.bol-8 {
+    top: 12px;
+    right: 69px;
+    position: absolute;
+}
+.bol-9 {
+    top: 20px;
+    right: 36px;
+    position: absolute;
+}
+.bol-10 {
+    top: 37px;
+    right: 4px;
+    position: absolute;
+}
+.hidden {
+    display: none;
+}
+/***  KEYBOARD  ***/
+
+.keyboard {
+    box-sizing: content-box;
+    width: 615px;
+    height: 260px;
+    background-color: #111;
+    margin: 0 auto;
+    border-radius: 9px;
+    padding: 5px;
+    color: #eee;
+
+    box-shadow: 0 0 8px #000000;
+    z-index: 1000;
+}
+
+.key {
+    box-sizing: content-box;
+    width: 40px;
+    height: 40px;
+    display: block;
+    background-color: #333;
+    text-align: left;
+    padding-left: 8px;
+    line-height: 29px;
+    border-radius: 2px;
+    float: left;
+    margin-left: 2px;
+    margin-bottom: 2px;
+    cursor: pointer;
+    transition: box-shadow 0s linear;
+}
+
+.section-a {
+    width: 650px;
+    height: 260px;
+    float: left;
+}
+
+.function {
+    font-size: 12px;
+    width: 30px;
+    height: 30px;
+    margin-bottom: 15px;
+}
+
+.space1 {
+    margin-right: 43px !important;
+}
+.space2 {
+    margin-right: 25px !important;
+}
+.dual {
+    font-size: 14px;
+    line-height: 20px;
+    width: 30px;
+}
+.backspace {
+    width: 84px;
+    font-size: 12px;
+}
+.tab {
+    width: 50px;
+    line-height: 40px;
+    font-size: 13px;
+}
+.letter {
+    width: 30px;
+}
+.slash {
+    width: 64px;
+}
+.caps {
+    width: 70px;
+    font-size: 12px;
+    line-height: 18px;
+}
+.enter {
+    width: 52px;
+    line-height: 40px;
+    text-align: center;
+    padding-left: 0;
+}
+.shift.left {
+    width: 90px;
+    line-height: 40px;
+    font-size: 13px;
+}
+.shift.right {
+    width: 64px;
+    line-height: 40px;
+    font-size: 13px;
+}
+.ctrl {
+    width: 50px;
+    line-height: 40px;
+    font-size: 13px;
+}
+.space {
+    width: 234px;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.key:hover {
+    box-shadow: 0 0 10px #14b524;
+    z-index: 1000;
+}
+
+.remove_borda .pressionadas {
+    box-shadow: 0 0 10px #14b524;
+    z-index: 1000;
+}
+
+.enter2 {
+    width: 12px;
+    margin-right: 0;
+    border-radius: 2px 0 0 2px;
+}
+.enter1:hover,
+.enter2:hover,
+.enter3:hover {
+    box-shadow: none;
+}
+
+.enter1 {
+    height: 42px;
+    margin-bottom: 0;
+    border-radius: 0 2px 0 0;
+    width: 44px;
+    margin-left: 0;
+}
+.enter3 {
+    border-radius: 0 0 2px 2px;
+}
