@@ -13,7 +13,10 @@ class DigitacaoController extends Controller
 {
     public function index($unidade = 1, $licao = 1)
     {
-        $pontuacoes = (new GetPontuacoesAction)($unidade);
+        $pontuacoes = [];
+        if(auth()->user()){
+            $pontuacoes = (new GetPontuacoesAction)($unidade);
+        }
 
         $texto = config("licoes.$unidade.$licao");
         return view('index', compact('texto', 'unidade', 'licao', 'pontuacoes'));
