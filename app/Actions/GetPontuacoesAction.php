@@ -5,7 +5,6 @@ namespace App\Actions;
 
 
 use App\Models\Digitacao;
-use Exception;
 
 class GetPontuacoesAction
 {
