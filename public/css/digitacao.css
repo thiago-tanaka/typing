@@ -1,9 +1,11 @@
 .blink {
     border-bottom: #ff0000 solid 2px;
 }
+
 .blink2 {
     border-bottom: #ffffff solid 1px;
 }
+
 .texto_principal {
     text-align: center;
     font-size: 22px;
@@ -12,19 +14,24 @@
     color: #555555;
     margin-bottom: 0;
 }
+
 .div-texto {
     min-height: 150px;
 }
+
 .precisao {
     font-size: 30px;
     color: #ff640a;
 }
+
 .letra_certa {
     background-color: #32bb6d !important;
 }
+
 .letra_errada {
     background-color: #b90101 !important;
 }
+
 .text-gray {
     font-size: 18px;
     color: #858484;
@@ -32,6 +39,7 @@
     padding: 0 5px;
     cursor: default;
 }
+
 .link {
     font-size: 18px;
     color: #858484;
@@ -39,6 +47,7 @@
     border: 1px solid;
     padding: 0 5px;
 }
+
 .link:hover {
     font-size: 18px;
     color: #ff640a;
@@ -50,10 +59,12 @@
     color: #858484;
     cursor: default;
 }
+
 .div-licoes {
     text-align: center;
     font-size: 15px;
 }
+
 .div-licoes2 {
     border-top: 1px solid #858484;
     text-align: center;
@@ -62,20 +73,24 @@
     padding-top: 3px;
     margin-bottom: 3px;
 }
+
 .div-licoes a {
     font-size: 18px;
     color: #858484;
     border: 1px solid;
     padding: 0 5px;
 }
+
 .div-licoes a:hover {
     font-size: 18px;
     color: #ff640a;
     text-decoration: none;
 }
+
 .atual a {
     color: #ff640a;
 }
+
 .nav-item a.atual {
     color: #ff640a;
 }
@@ -85,54 +100,65 @@
     left: 4px;
     position: absolute;
 }
+
 .bol-2 {
     top: 20px;
     left: 36px;
     position: absolute;
 }
+
 .bol-3 {
     top: 12px;
     left: 69px;
     position: absolute;
 }
+
 .bol-4 {
     top: 20px;
     left: 99px;
     position: absolute;
 }
+
 .bol-5 {
     top: 88px;
     left: 143px;
     position: absolute;
 }
+
 .bol-6 {
     top: 88px;
     right: 143px;
     position: absolute;
 }
+
 .bol-7 {
     top: 20px;
     right: 99px;
     position: absolute;
 }
+
 .bol-8 {
     top: 12px;
     right: 69px;
     position: absolute;
 }
+
 .bol-9 {
     top: 20px;
     right: 36px;
     position: absolute;
 }
+
 .bol-10 {
     top: 37px;
     right: 4px;
     position: absolute;
 }
+
 .hidden {
     display: none;
 }
+
 /***  KEYBOARD  ***/
 
 .keyboard {
@@ -182,55 +208,67 @@
 .space1 {
     margin-right: 43px !important;
 }
+
 .space2 {
     margin-right: 25px !important;
 }
+
 .dual {
     font-size: 14px;
     line-height: 20px;
     width: 30px;
 }
+
 .backspace {
     width: 84px;
     font-size: 12px;
 }
+
 .tab {
     width: 50px;
     line-height: 40px;
     font-size: 13px;
 }
+
 .letter {
     width: 30px;
 }
+
 .slash {
     width: 64px;
 }
+
 .caps {
     width: 70px;
     font-size: 12px;
     line-height: 18px;
 }
+
 .enter {
     width: 52px;
     line-height: 40px;
     text-align: center;
     padding-left: 0;
 }
+
 .shift.left {
     width: 90px;
     line-height: 40px;
     font-size: 13px;
 }
+
 .shift.right {
     width: 64px;
     line-height: 40px;
     font-size: 13px;
 }
+
 .ctrl {
     width: 50px;
     line-height: 40px;
     font-size: 13px;
 }
+
 .space {
     width: 234px;
 }
@@ -244,6 +282,14 @@
     z-index: 1000;
 }
 
+.text-purple {
+    color: #c200c2;
+}
+
+.text-amarelo{
+    color: #ffaa00;
+}
+
 .remove_borda .pressionadas {
     box-shadow: 0 0 10px #14b524;
     z-index: 1000;
@@ -254,6 +300,7 @@
     margin-right: 0;
     border-radius: 2px 0 0 2px;
 }
+
 .enter1:hover,
 .enter2:hover,
 .enter3:hover {
@@ -267,6 +314,7 @@
     width: 44px;
     margin-left: 0;
 }
+
 .enter3 {
     border-radius: 0 0 2px 2px;
 }

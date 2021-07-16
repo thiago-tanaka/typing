@@ -29,13 +29,15 @@
                 </div>
             </div>
             <div class="row d-flex justify-content-center">
-                <div class="col-2 div-licoes2">@auth {{  Auth::user()["licao_".$unidade."_1"] }} @endauth</div>
-                <div class="col-2 div-licoes2">@auth {{  Auth::user()["licao_".$unidade."_2"] }}@endauth</div>
-                <div class="col-2 div-licoes2">@auth {{  Auth::user()["licao_".$unidade."_3"] }}@endauth</div>
-                <div class="col-2 div-licoes2">@auth {{  Auth::user()["licao_".$unidade."_4"] }}@endauth</div>
-                <div class="col-2 div-licoes2">@auth {{  Auth::user()["licao_".$unidade."_5"] }}@endauth</div>
+                @foreach($pontuacoes as $pontuacao)
+                    <div class="col-2 div-licoes2">@auth {!! $pontuacao !!} @endauth</div>
+                @endforeach
             </div>
         </div>
+
+        <script>
+            // alert()
+        </script>
 
         <div class="col-2 text-center">
             <div class="row">
@@ -73,6 +75,7 @@
         <div class="col-xl-2 p-0 m-0 text-right ">
             <img class=" " src="{{ asset('img/mao_direita.png') }}" width="170px" alt="">
             <img src="{{ asset('img/bolinha.png') }}" width="15px" id="bolinha2" class="hidden" alt="">
+            <img src="{{ asset('img/bolinha.png') }}" width="15px" id="bolinha3" class="hidden" alt="">
         </div>
 
     </div>

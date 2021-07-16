@@ -86,8 +86,8 @@ const digitacao = {
         var dedo6 = [" "];
         var dedo7 = ["h", "y", "n", "j", "u", "m"];
         var dedo8 = ["k", "i", ","];
-        var dedo9 = ["l", "o", "."];
-        var dedo10 = ["ç", "p", ";", "ã", "é"];
+        var dedo9 = ["l", "o", ".", "ó"];
+        var dedo10 = ["ç", "p", ";", "ã", "é", "ó"];
 
         // Adiciona bolinha na mão esquerda
         if (dedo1.indexOf(this.letra_atual) !== -1) {
@@ -112,11 +112,15 @@ const digitacao = {
         } else if (dedo8.indexOf(this.letra_atual) !== -1) {
             get("bolinha2").className = "bol-8";
         } else if (dedo9.indexOf(this.letra_atual) !== -1) {
+            if(this.letra_atual === 'ó'){
+                get("bolinha3").className = "bol-10";
+            }
             get("bolinha2").className = "bol-9";
         } else if (dedo10.indexOf(this.letra_atual) !== -1) {
             get("bolinha2").className = "bol-10";
         } else {
             get("bolinha2").className = "hidden";
+            get("bolinha3").className = "hidden";
         }
     },
 
@@ -128,7 +132,11 @@ const digitacao = {
             } else if (this.letra_atual == "é") {
                 get("e").classList.add("letra_certa");
                 get("´").classList.add("letra_certa");
-            } else if (this.letra_atual == " ") {
+            } else if (this.letra_atual == "ó") {
+                get("o").classList.add("letra_certa");
+                get("´").classList.add("letra_certa");
+            }
+            else if (this.letra_atual == " ") {
                 get("space").classList.add("letra_certa");
             } else {
                 get(this.letra_atual).classList.add("letra_certa");
@@ -155,7 +163,11 @@ const digitacao = {
         } else if (this.letra_atual == "é") {
             get("e").classList.remove("letra_certa");
             get("´").classList.remove("letra_certa");
-        } else {
+        } else if (this.letra_atual == "ó") {
+            get("o").classList.remove("letra_certa");
+            get("´").classList.remove("letra_certa");
+        }
+        else {
             get(this.letra_atual).classList.remove("letra_certa");
         }
     },
