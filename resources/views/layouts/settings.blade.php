@@ -41,23 +41,6 @@
                 <!-- Left Side Of Navbar -->
                 <ul class="navbar-nav mr-auto"></ul>
 
-                {{-- Links das unidades --}}
-                @if($unidade = isset($unidade) ? $unidade : 1)@endif
-                <ul class="navbar-nav ">
-                    <li class="nav-item">
-                        <a class="text-gray" href="#">Unidades:</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="link @if ($unidade == 1 ) atual @endif " href="{{ url("/1/1") }}">1</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="link  @if ($unidade == 2 ) atual @endif " href="{{ url("/2/1") }}">2</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="link  @if ($unidade == 3 ) atual @endif " href="{{ url("/3/1") }}">3</a>
-                    </li>
-                </ul>
-
                 <!-- Right Side Of Navbar -->
                 <ul class="navbar-nav ml-auto">
                     <!-- Authentication Links -->
@@ -105,7 +88,6 @@
         </main>
     </div>
 </div>
-@yield('script')
 </body>
 
 </html>

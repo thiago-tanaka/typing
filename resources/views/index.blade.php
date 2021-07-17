@@ -35,10 +35,6 @@
             </div>
         </div>
 
-        <script>
-            // alert()
-        </script>
-
         <div class="col-2 text-center">
             <div class="row">
                 <div class="col">
@@ -88,16 +84,16 @@
 
         </form>
     @endauth
+@endsection
 
+@section('script')
 
+    <script>
+        var texto = {!! json_encode($texto) !!}
+    </script>
     <script src="{{ asset('js/digitacao.js') }}"></script>
     <script>
         digitacao.insereTexto();
     </script>
 
 @endsection
-
-{{-- $texto está vindo de DigitacaoController@index --}}
-<script>
-    var texto = {!! $texto !!}
-</script>
