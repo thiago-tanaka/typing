@@ -1,32 +1,28 @@
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-
 require('./bootstrap');
 
-// window.Vue = require('vue').default;
+window.Vue = require('vue').default;
 
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
+import vuetify from './vuetify';
 
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+import AxiosWrapper from 'sb-axios-wrapper'
 
-// Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+import Notifications from 'vue-notification'
+Vue.mixin(AxiosWrapper)
+Vue.use(Notifications)
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
+Vue.component('lesson-list', require('./components/LessonListComponent.vue').default);
+Vue.component('lesson-component', require('./components/LessonComponent.vue').default);
+Vue.component('notification', require('./components/NotificationComponent.vue').default);
 
-// const app = new Vue({
-//     el: '#app',
-// });
+
+const app = new Vue({
+    el: '#app',
+    vuetify
+});
+
+app.$root.$on('notify',(options) => {
+    app.$notify({
+        type: options.status,
+        text: options.message
+    })
+})
