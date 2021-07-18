@@ -30,6 +30,7 @@
             <a class="navbar-brand" href="{{ url('/') }}">
                 {{ config("app.name", "DigiMasters") }}
             </a>
+            <notification></notification>
 
             <button class="navbar-toggler" type="button" data-toggle="collapse"
                     data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"

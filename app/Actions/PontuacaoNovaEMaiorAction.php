@@ -2,19 +2,24 @@
 
 namespace App\Actions;
 
+use App\Models\Lesson;
+use App\Models\Pontuacao;
+
 class PontuacaoNovaEMaiorAction
 {
-    public function __invoke($current, string $new): bool
+    public function __invoke(Lesson $lesson, $velocidade, $precisao): bool
     {
-        if (!$current) {
+        $pontuacao = Pontuacao::where('user_id', auth()->id())->where('lesson_id', $lesson->id)->first();
+
+        if(!$pontuacao){
             return true;
         }
 
-        $current_precisao = (new GetPrecisaoAction)($current);
-        $current_valocidade = (new GetVelocidadeAction)($current);
+        $current_precisao = $pontuacao->precisao;
+        $current_valocidade = $pontuacao->velocidade;
 
-        $new_precisao = (new GetPrecisaoAction)($new);
-        $new_velocidade = (new GetVelocidadeAction)($new);
+        $new_precisao = $precisao;
+        $new_velocidade = $velocidade;
 
         return $new_precisao >= $current_precisao &&
             $new_velocidade >= $current_valocidade;

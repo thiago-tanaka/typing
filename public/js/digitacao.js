@@ -201,7 +201,8 @@ const digitacao = {
             var velocidade = digitacao.velocidade;
             var precisao = digitacao.calcularPrecisao();
 
-            get("licao").value = velocidade + " / " + precisao + "%";
+            get("licao_velocidade").value = velocidade
+            get("licao_precisao").value = precisao
             get("formulario").submit();
         }
     }

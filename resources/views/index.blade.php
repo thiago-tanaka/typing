@@ -80,7 +80,8 @@
         <form id="formulario" method="post" action="/registra/{{ $unidade }}/{{ $licao }}">
             @csrf
             <input type="hidden" name="id" id="{{ auth()->id() }}">
-            <input type="hidden" name="licao" id="licao" value="">
+            <input type="hidden" name="licao_velocidade" id="licao_velocidade" value="">
+            <input type="hidden" name="licao_precisao" id="licao_precisao" value="">
 
         </form>
     @endauth

@@ -5,39 +5,37 @@ namespace App\Actions;
 
 
 use App\Models\Digitacao;
+use App\Models\Pontuacao;
 
 class GetPontuacoesAction
 {
     public function __invoke($unidade): array
     {
-        $pontuacoes = [];
+        $pontuacoes = [1 => '',2 => '',3 => '',4 => '',5 => '',];
 
-        for ($i = 1; $i <= 5; $i++) {
-            $pontuacoes[$i] = $this->setColor(auth()->user()["licao_{$unidade}_{$i}"]);
-        }
+        auth()->user()->pontuacoes()->whereHas('lesson', function($query) use ($unidade){
+            $query->whereHas('unit', function($query) use($unidade){
+                $query->where('name', $unidade);
+            });
+        })->each(function ($pontuacao) use(&$pontuacoes){
+            $pontuacoes[$pontuacao->lesson->name] = $this->setColor($pontuacao);
+        });
 
         return $pontuacoes;
     }
 
-    public function setColor(?string $licao): string
+    public function setColor(Pontuacao $pontuacao): string
     {
-        if (!(new LicaoIsValid)($licao)) {
-            return '';
-        }
-
-        $velocidade = (new GetVelocidadeAction)($licao);
-        $precisao = (new GetPrecisaoAction)($licao);
-
-        if ($velocidade >= Digitacao::VELOCIDADE_OTIMA && $precisao >= Digitacao::PRECISAO_OTIMA) {
+        if ($pontuacao->velocidade >= Digitacao::VELOCIDADE_OTIMA && $pontuacao->precisao >= Digitacao::PRECISAO_OTIMA) {
             $color = 'purple';
-        } elseif ($velocidade >= Digitacao::VELOCIDADE_BOA && $precisao >= Digitacao::PRECISAO_BOA) {
+        } elseif ($pontuacao->velocidade >= Digitacao::VELOCIDADE_BOA && $pontuacao->precisao >= Digitacao::PRECISAO_BOA) {
             $color = 'success';
-        } elseif ($velocidade >= Digitacao::VELOCIDADE_MEDIA && $precisao >= Digitacao::PRECISAO_MEDIA) {
+        } elseif ($pontuacao->velocidade >= Digitacao::VELOCIDADE_MEDIA && $pontuacao->precisao >= Digitacao::PRECISAO_MEDIA) {
             $color = 'amarelo';
         } else {
             $color = 'danger';
         }
 
-        return '<span style="font-size:1.1em" class="p-1 mt-1 bg-pontuacao text-' . $color . '">' . $licao . '</span>';
+        return '<span style="font-size:1.1em" class="p-1 mt-1 bg-pontuacao text-' . $color . '">' . $pontuacao . '</span>';
     }
 }

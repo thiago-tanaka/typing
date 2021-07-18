@@ -2056,6 +2056,7 @@ var app = new Vue({
   el: '#app',
   vuetify: _vuetify__WEBPACK_IMPORTED_MODULE_0__.default
 });
+window.app = app;
 app.$root.$on('notify', function (options) {
   app.$notify({
     type: options.status,

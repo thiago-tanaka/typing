@@ -20,6 +20,8 @@ const app = new Vue({
     vuetify
 });
 
+window.app = app
+
 app.$root.$on('notify',(options) => {
     app.$notify({
         type: options.status,

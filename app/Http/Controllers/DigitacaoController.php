@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\GetPontuacoesAction;
 use App\Actions\PontuacaoNovaEMaiorAction;
 use App\Models\Lesson;
+use App\Models\Pontuacao;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,12 +33,21 @@ class DigitacaoController extends Controller
 
     public function update($unidade, $licao): RedirectResponse
     {
+        $lesson = Lesson::whereHas('unit', function ($query) use ($unidade){
+            $query->where('name', $unidade);
+        })->where('name', $licao)->firstOrFail();
+
         if (Auth::check()) {
-            $licao = 'licao_' . $unidade . '_' . $licao;
-            if ((new PontuacaoNovaEMaiorAction)(auth()->user()->$licao, request('licao'))) {
-                auth()->user()->update([
-                    $licao => request('licao')
-                ]);
+            if (
+            (new PontuacaoNovaEMaiorAction)(
+                $lesson,
+                request('licao_velocidade'),
+                request('licao_precisao'))) {
+            $pontuacao = Pontuacao::updateOrCreate(
+                ['user_id' => auth()->id(), 'lesson_id' => $lesson->id],
+                ['velocidade' => request('licao_velocidade'), 'precisao' => request('licao_precisao')]
+            );
+
             }
         }
         return redirect()->back();
