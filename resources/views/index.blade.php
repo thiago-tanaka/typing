@@ -48,14 +48,23 @@
             </div>
         </div>
     </div>
-    <div class="row border mb-3 div-texto">
-        <div class="col ">
+    <div class="row  mb-3 d-flex justify-content-center">
+        <div class="col-1">
+        </div>
+        <div class="col-9 border rounded bg-white text-center" style="box-shadow: 0 5px 10px #9a9a9a;">
             <div class="texto_principal" id="texto1"></div>
             <div class="texto_principal" id="texto2"></div>
             <div class="texto_principal" id="texto3"></div>
             <div class="texto_principal" id="texto4"></div>
         </div>
+        <div class="col-1">
 
+            @foreach($pontuacoes_chart as $p)
+                <div class="s text-nowrap" style="font-size:0.8rem">
+                    {!! $p !!}
+                </div>
+            @endforeach
+        </div>
     </div>
 
     <div class="row p-1">

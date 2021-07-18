@@ -20,5 +20,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt(0),
             'is_admin' => true
         ]);
+
+        $this->call(LessonSeeder::class);
     }
 }

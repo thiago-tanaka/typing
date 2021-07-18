@@ -1,14 +1,19 @@
 <?php
 
-
 namespace App\Actions;
 
-
-use App\Models\Digitacao;
 use App\Models\Pontuacao;
 
 class GetPontuacoesAction
 {
+
+    private $setColorAction;
+
+    public function __construct()
+    {
+        $this->setColorAction = new SetColorAction();
+    }
+
     public function __invoke($unidade): array
     {
         $pontuacoes = [1 => '',2 => '',3 => '',4 => '',5 => '',];
@@ -26,16 +31,6 @@ class GetPontuacoesAction
 
     public function setColor(Pontuacao $pontuacao): string
     {
-        if ($pontuacao->velocidade >= Digitacao::VELOCIDADE_OTIMA && $pontuacao->precisao >= Digitacao::PRECISAO_OTIMA) {
-            $color = 'purple';
-        } elseif ($pontuacao->velocidade >= Digitacao::VELOCIDADE_BOA && $pontuacao->precisao >= Digitacao::PRECISAO_BOA) {
-            $color = 'success';
-        } elseif ($pontuacao->velocidade >= Digitacao::VELOCIDADE_MEDIA && $pontuacao->precisao >= Digitacao::PRECISAO_MEDIA) {
-            $color = 'amarelo';
-        } else {
-            $color = 'danger';
-        }
-
-        return '<span style="font-size:1.1em" class="p-1 mt-1 bg-pontuacao text-' . $color . '">' . $pontuacao . '</span>';
+        return $this->setColorAction->setColor($pontuacao);
     }
 }
