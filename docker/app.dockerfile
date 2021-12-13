@@ -1,4 +1,4 @@
-FROM devilbox/php-fpm-8.0:latest
+FROM devilbox/php-fpm-8.1:latest
 
 RUN apt-get update && apt-get install -y libmcrypt-dev --no-install-recommends \
     apt-utils \

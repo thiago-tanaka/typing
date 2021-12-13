@@ -46,6 +46,12 @@ migrate_rollback:
 dockerup:
 	@cd docker; docker-compose up -d
 
+dockerbuild:
+	@cd docker; docker-compose up -d --build
+
+dockerexec:
+	@cd docker; docker exec -it docker_app_1 bash
+
 dockerdown:
 	@docker stop $$(docker ps -a -q);
 
