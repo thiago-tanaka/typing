@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y libmcrypt-dev --no-install-recommends \
     && pecl install imagick \
     && docker-php-ext-enable imagick \
     && docker-php-ext-configure zip --with-libzip \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \ 
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd exif bcmath pdo_mysql mysqli zip
 
 # Install Composer
@@ -25,11 +25,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
 RUN apt-get update
-RUN apt-get install nano
 
 
 #install xdebug
-RUN yes | pecl install xdebug 
+RUN yes | pecl install xdebug
 
 COPY xdebug.ini /var/www/xdebug.ini
 

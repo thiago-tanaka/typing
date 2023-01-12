@@ -1,8 +1,7 @@
 version: '3'
 services:
-
-    # The Application
     app:
+        container_name: digitacao-app
         build:
             context: ./
             args:
@@ -18,9 +17,8 @@ services:
             PHP_EXTENSION_XDEBUG: 1
         extra_hosts: # <-- does no harm
             - "host.docker.internal:host-gateway" # <-- does no harm
-
-        # The Web Server
     web:
+        container_name: digitacao-web
         build:
             context: ./
             dockerfile: web.dockerfile
@@ -35,24 +33,24 @@ services:
         extra_hosts: # <--- this is required
             - "host.docker.internal:host-gateway" # <--- this is required
     dbserver:
+        container_name: digitacao-mysql
         image: mysql:8.0
         command: mysqld --default-authentication-plugin=mysql_native_password  --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --sql-mode=NO_ENGINE_SUBSTITUTION --init-connect='SET NAMES UTF8;' --innodb-flush-log-at-trx-commit=0
-        ports: 
+        ports:
             - ${MYSQL_PORT:-3306}:3306
         hostname: dbserver
         environment:
             MYSQL_DATABASE: ${MYSQL_DATABASE:-laravel}
-            # MYSQL_USER: ${MYSQL_USER:-root}
             MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secret}
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-secret}
         volumes:
             - ../db_data:/var/lib/mysql
     phpmyadmin:
+        container_name: digitacao-phpmyadmin
         build:
             context: ./
             dockerfile: phpmyadmin.dockerfile
-        # image: phpmyadmin/phpmyadmin:4.7
-        depends_on: 
+        depends_on:
             - dbserver
         ports:
             - ${PMA_PORT:-81}:80

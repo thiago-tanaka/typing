@@ -22,13 +22,12 @@ endif
 
 init_confirmed:
 	cp .env.example .env;
-	php artisan key:generate;
-	docker stop $$(docker ps -a -q);
 	cd docker; docker-compose up -d;
-	docker exec -it docker_app_1 composer install;
-	docker exec -it docker_app_1 php artisan migrate:fresh --seed;
-	docker exec -it docker_app_1 npm install;
-	docker exec -it docker_app_1 npm run dev;
+	docker exec -it digitacao-app php artisan key:generate;
+	docker exec -it digitacao-app composer install;
+	docker exec -it digitacao-app php artisan migrate:fresh --seed;
+	docker exec -it digitacao-app npm install;
+	docker exec -it digitacao-app npm run dev;
 	sudo chown -R $$USER:www-data storage;
 	sudo chown -R $$USER:www-data bootstrap/cache;
 	chmod -R 775 storage;
@@ -38,10 +37,10 @@ init:
 	@echo -n "$(YELLOW) This command will erase all data from the database. Are you sure? [y/N] $(RESET)" && read ans && [ $${ans:-N} = y ] && make init_confirmed
 
 migrate:
-	@docker exec -it docker_app_1 php artisan migrate
+	@docker exec -it digitacao-app php artisan migrate
 
 migrate_rollback:
-	docker exec -it docker_app_1 php artisan migrate:rollback
+	docker exec -it digitacao-app php artisan migrate:rollback
 
 dockerup:
 	@cd docker; docker-compose up -d
@@ -50,7 +49,7 @@ dockerbuild:
 	@cd docker; docker-compose up -d --build
 
 dockerexec:
-	@cd docker; docker exec -it docker_app_1 bash
+	@cd docker; docker exec -it digitacao-app bash
 
 dockerdown:
 	@docker stop $$(docker ps -a -q);
