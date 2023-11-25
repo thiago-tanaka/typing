@@ -46,7 +46,7 @@
                 @if($unidade = isset($unidade) ? $unidade : 1)@endif
                 <ul class="navbar-nav ">
                     <li class="nav-item">
-                        <a class="text-gray" href="#">Unidades:</a>
+                        <a class="text-gray" href="#">Units:</a>
                     </li>
                     <li class="nav-item">
                         <a class="link @if ($unidade == 1 ) atual @endif " href="{{ url("/1/1") }}">1</a>
@@ -68,7 +68,7 @@
                         </li>
                         @if (Route::has('register'))
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('register') }}">{{ __("Cadastre-se") }}</a>
+                                <a class="nav-link" href="{{ route('register') }}">{{ __("Register") }}</a>
                             </li>
                         @endif @else
                         <li class="nav-item dropdown">

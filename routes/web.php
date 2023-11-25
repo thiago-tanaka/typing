@@ -2,12 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 
-Auth::routes();
+Auth::routes(['verify' => true]);
 
 Route::get('/{unidade?}/{licao?}', 'App\Http\Controllers\DigitacaoController@index')
     ->where('unidade', '[1-5]+')
     ->where('licao', '[1-5]+')
-    ->name('index');
+    ->name('index')
+    ->middleware('verifiedifauth');
 
 
 Route::post('/registra/{unidade}/{licao}', 'App\Http\Controllers\DigitacaoController@update');

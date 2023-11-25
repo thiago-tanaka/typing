@@ -6,7 +6,7 @@
         <div class="col-2 text-center">
             <div class="row">
                 <div class="col">
-                    Velocidade
+                    Speed
                 </div>
             </div>
             <div class="row">
@@ -38,7 +38,7 @@
         <div class="col-2 text-center">
             <div class="row">
                 <div class="col">
-                    Precisão
+                    Accuracy
                 </div>
             </div>
             <div class="row">
