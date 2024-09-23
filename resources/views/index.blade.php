@@ -73,7 +73,7 @@
             <img src="{{ asset('img/bolinha.png') }}" width="15px" id="bolinha" class="hidden" alt="">
         </div>
 
-        <div class="col-xl-8 p-0 m-0 d-none d-md-block ">@include('keyboard_html')
+        <div style="opacity: 0" class="col-xl-8 p-0 m-0 d-none d-md-block ">@include('keyboard_html')
 
         </div>
 
