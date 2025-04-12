@@ -8,7 +8,7 @@ class Digitacao
 {
     public const VELOCIDADE_OTIMA = 250;
     public const VELOCIDADE_BOA = 160;
-    public const VELOCIDADE_MEDIA = 100;
+    public const VELOCIDADE_MEDIA = 75;
 
     public const PRECISAO_OTIMA = 98;
     public const PRECISAO_BOA = 97;
