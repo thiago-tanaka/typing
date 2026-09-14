@@ -27,9 +27,9 @@ class BackupDatabase extends Command
         try {
             $command = sprintf(
                 'mysqldump -u%s -p%s %s > %s',
-                'forge',
-                'fjfj555',
-                'digitacao',
+                escapeshellarg(config('database.connections.mysql.username')),
+                escapeshellarg(config('database.connections.mysql.password')),
+                escapeshellarg(config('database.connections.mysql.database')),
                 storage_path("backups/backup".now()->format('Y-m-d-H:i:s').".sql")
             );
             exec($command);
