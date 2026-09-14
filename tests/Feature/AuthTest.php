@@ -43,13 +43,14 @@ class AuthTest extends TestCase
             $sent++;
         });
 
-        $this->post('/register', [
+        $response = $this->post('/register', [
             'name' => 'Maria',
             'email' => 'maria@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
 
+        $response->assertRedirect('/');
         $this->assertSame(1, $sent);
     }
 
