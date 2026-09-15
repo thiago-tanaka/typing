@@ -36,10 +36,15 @@ const previousBest = ref(props.best);
 const imeWarning = ref(false);
 const root = ref(null);
 const showHands = ref(readHandsPreference());
+const hintVisible = ref(false);
+
+// How long a pause has to be before the keyboard shows the next key.
+const HINT_DELAY = 800;
 
 let ticker = null;
 let flashTimer = null;
 let imeTimer = null;
+let hintTimer = null;
 
 const kbd =
     'rounded-md border border-zinc-300 bg-zinc-100 px-1.5 py-0.5 font-mono text-xs text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200';
@@ -262,7 +267,24 @@ function keepLessonInView() {
     }
 }
 
+// The keyboard shows the next key only when the typist pauses or misses, so typing
+// at a steady pace keeps the eyes on the text instead of on the keyboard.
+function showHint() {
+    clearTimeout(hintTimer);
+    hintVisible.value = true;
+}
+
+function scheduleHint() {
+    clearTimeout(hintTimer);
+    hintVisible.value = false;
+
+    if (!finished.value) {
+        hintTimer = setTimeout(showHint, HINT_DELAY);
+    }
+}
+
 function flashError(key) {
+    showHint();
     errorFlash.value = true;
     wrongKey.value = keyFor(key)?.key ?? null;
     clearTimeout(flashTimer);
@@ -294,6 +316,7 @@ function restart() {
     saveState.value = 'idle';
     saved.value = false;
     settle();
+    showHint();
 }
 
 function restartFromButton(event) {
@@ -381,11 +404,13 @@ function onKeydown(event) {
     correct.value += 1;
     position.value += 1;
     settle();
+    scheduleHint();
 }
 
 onMounted(() => {
     window.addEventListener('keydown', onKeydown);
     settle();
+    showHint();
 });
 
 onBeforeUnmount(() => {
@@ -393,6 +418,7 @@ onBeforeUnmount(() => {
     stopTicker();
     clearTimeout(flashTimer);
     clearTimeout(imeTimer);
+    clearTimeout(hintTimer);
 });
 </script>
 
@@ -536,16 +562,21 @@ onBeforeUnmount(() => {
                 >.
             </template>
             <template v-else-if="!started">
-                Start typing to begin: the timer starts with your first correct key. Keep your eyes on the text, not on
-                your hands.
+                Start typing to begin: the timer starts with your first correct key. Keep your eyes on the text; the
+                keyboard lights up only when you pause.
             </template>
-            <template v-else>
+            <span v-else :class="{ invisible: !hintVisible }">
                 Next key <kbd :class="kbd">{{ nextLabel }}</kbd>
                 <template v-if="fingerLabel"> with your {{ fingerLabel }}</template>
                 <template v-if="nextKey?.shift"> + Shift</template>
-            </template>
+            </span>
         </p>
 
-        <OnScreenKeyboard :next-key="nextKey?.key ?? null" :shift="nextKey?.shift ?? false" :wrong-key="wrongKey" :hands="showHands" />
+        <OnScreenKeyboard
+            :next-key="hintVisible ? (nextKey?.key ?? null) : null"
+            :shift="hintVisible && (nextKey?.shift ?? false)"
+            :wrong-key="wrongKey"
+            :hands="showHands"
+        />
     </section>
 </template>
