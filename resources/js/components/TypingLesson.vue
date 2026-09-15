@@ -35,10 +35,16 @@ const bestScore = ref(props.best);
 const previousBest = ref(props.best);
 const imeWarning = ref(false);
 const root = ref(null);
+const showHands = ref(readHandsPreference());
+const hintVisible = ref(false);
+
+// How long a pause has to be before the keyboard shows the next key.
+const HINT_DELAY = 800;
 
 let ticker = null;
 let flashTimer = null;
 let imeTimer = null;
+let hintTimer = null;
 
 const kbd =
     'rounded-md border border-zinc-300 bg-zinc-100 px-1.5 py-0.5 font-mono text-xs text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200';
@@ -48,7 +54,7 @@ const secondaryButton =
     'inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700';
 
 const smallButton =
-    'ml-auto inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700';
+    'inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700';
 
 const started = computed(() => startedAt.value !== null);
 const finished = computed(() => finishedAt.value !== null);
@@ -261,7 +267,24 @@ function keepLessonInView() {
     }
 }
 
+// The keyboard shows the next key only when the typist pauses or misses, so typing
+// at a steady pace keeps the eyes on the text instead of on the keyboard.
+function showHint() {
+    clearTimeout(hintTimer);
+    hintVisible.value = true;
+}
+
+function scheduleHint() {
+    clearTimeout(hintTimer);
+    hintVisible.value = false;
+
+    if (!finished.value) {
+        hintTimer = setTimeout(showHint, HINT_DELAY);
+    }
+}
+
 function flashError(key) {
+    showHint();
     errorFlash.value = true;
     wrongKey.value = keyFor(key)?.key ?? null;
     clearTimeout(flashTimer);
@@ -293,11 +316,33 @@ function restart() {
     saveState.value = 'idle';
     saved.value = false;
     settle();
+    showHint();
 }
 
 function restartFromButton(event) {
     event.currentTarget.blur();
     restart();
+}
+
+const HANDS_PREFERENCE = 'typing:hands';
+
+function readHandsPreference() {
+    try {
+        return window.localStorage.getItem(HANDS_PREFERENCE) !== 'off';
+    } catch {
+        return true;
+    }
+}
+
+function toggleHands(event) {
+    event.currentTarget.blur();
+    showHands.value = !showHands.value;
+
+    try {
+        window.localStorage.setItem(HANDS_PREFERENCE, showHands.value ? 'on' : 'off');
+    } catch {
+        // Storage can be blocked (private windows); the toggle still works on this page.
+    }
 }
 
 function onKeydown(event) {
@@ -359,11 +404,13 @@ function onKeydown(event) {
     correct.value += 1;
     position.value += 1;
     settle();
+    scheduleHint();
 }
 
 onMounted(() => {
     window.addEventListener('keydown', onKeydown);
     settle();
+    showHint();
 });
 
 onBeforeUnmount(() => {
@@ -371,6 +418,7 @@ onBeforeUnmount(() => {
     stopTicker();
     clearTimeout(flashTimer);
     clearTimeout(imeTimer);
+    clearTimeout(hintTimer);
 });
 </script>
 
@@ -399,9 +447,28 @@ onBeforeUnmount(() => {
                         </dd>
                     </div>
                 </dl>
-                <button type="button" :class="smallButton" @click="restartFromButton">
-                    Restart <kbd :class="kbd">Esc</kbd>
-                </button>
+                <div class="ml-auto flex items-center gap-2">
+                    <button
+                        type="button"
+                        :class="[smallButton, 'max-md:hidden']"
+                        :aria-pressed="showHands"
+                        @click="toggleHands"
+                    >
+                        Hands
+                        <span
+                            class="rounded-md px-1.5 py-0.5 text-xs font-semibold"
+                            :class="
+                                showHands
+                                    ? 'bg-orange-100 text-orange-700 dark:bg-orange-400/15 dark:text-orange-300'
+                                    : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400'
+                            "
+                            >{{ showHands ? 'On' : 'Off' }}</span
+                        >
+                    </button>
+                    <button type="button" :class="smallButton" @click="restartFromButton">
+                        Restart <kbd :class="kbd">Esc</kbd>
+                    </button>
+                </div>
             </div>
 
             <div
@@ -495,16 +562,21 @@ onBeforeUnmount(() => {
                 >.
             </template>
             <template v-else-if="!started">
-                Start typing to begin: the timer starts with your first correct key. Keep your eyes on the text, not on
-                your hands.
+                Start typing to begin: the timer starts with your first correct key. Keep your eyes on the text; the
+                keyboard lights up only when you pause.
             </template>
-            <template v-else>
+            <span v-else :class="{ invisible: !hintVisible }">
                 Next key <kbd :class="kbd">{{ nextLabel }}</kbd>
                 <template v-if="fingerLabel"> with your {{ fingerLabel }}</template>
                 <template v-if="nextKey?.shift"> + Shift</template>
-            </template>
+            </span>
         </p>
 
-        <OnScreenKeyboard :next-key="nextKey?.key ?? null" :shift="nextKey?.shift ?? false" :wrong-key="wrongKey" />
+        <OnScreenKeyboard
+            :next-key="hintVisible ? (nextKey?.key ?? null) : null"
+            :shift="hintVisible && (nextKey?.shift ?? false)"
+            :wrong-key="wrongKey"
+            :hands="showHands"
+        />
     </section>
 </template>

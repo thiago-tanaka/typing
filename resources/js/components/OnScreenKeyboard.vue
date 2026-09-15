@@ -1,12 +1,16 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import KeyboardHands from './KeyboardHands.vue';
 import { FINGER_ZONES, fingerFor } from '../lib/fingers';
 
 const props = defineProps({
     nextKey: { type: String, default: null },
     shift: { type: Boolean, default: false },
     wrongKey: { type: String, default: null },
+    hands: { type: Boolean, default: true },
 });
+
+const board = ref(null);
 
 const letter = (value, width = 1) => ({ id: value, char: value, label: value.toUpperCase(), width });
 const modifier = (label, width, side = null) => ({ id: `${label}-${side ?? width}`, char: null, label, width, side });
@@ -61,31 +65,38 @@ function keyClass(key) {
 
 <template>
     <div class="hidden md:block" aria-hidden="true">
-        <div
-            class="mx-auto w-fit select-none rounded-2xl border border-zinc-200 bg-zinc-100 p-2.5 on-screen-keyboard dark:border-zinc-800 dark:bg-zinc-900"
-        >
-            <div v-for="(row, index) in rows" :key="index" class="mb-1.5 flex gap-1.5">
-                <div
-                    v-for="key in row"
-                    :key="key.id"
-                    class="relative grid h-(--u) place-items-center rounded-lg border text-xs font-medium transition-colors duration-75 lg:text-sm"
-                    :class="keyClass(key)"
-                    :style="keyWidth(key)"
-                >
-                    {{ key.label }}
-                    <span
-                        v-if="key.char === 'f' || key.char === 'j'"
-                        class="absolute bottom-1.5 h-0.5 w-2.5 rounded-full bg-current opacity-60"
-                    ></span>
+        <div class="relative mx-auto w-fit">
+            <div
+                ref="board"
+                class="select-none rounded-2xl border border-zinc-200 bg-zinc-100 p-2.5 on-screen-keyboard dark:border-zinc-800 dark:bg-zinc-900"
+            >
+                <div v-for="(row, index) in rows" :key="index" class="mb-1.5 flex gap-1.5">
+                    <div
+                        v-for="key in row"
+                        :key="key.id"
+                        :data-key-id="key.id"
+                        class="relative grid h-(--u) place-items-center rounded-lg border text-xs font-medium transition-colors duration-75 lg:text-sm"
+                        :class="keyClass(key)"
+                        :style="keyWidth(key)"
+                    >
+                        {{ key.label }}
+                        <span
+                            v-if="key.char === 'f' || key.char === 'j'"
+                            class="absolute bottom-1.5 h-0.5 w-2.5 rounded-full bg-current opacity-60"
+                        ></span>
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <div
+                        :data-key-id="space.id"
+                        class="h-(--u) rounded-lg border transition-colors duration-75"
+                        :class="keyClass(space)"
+                        :style="keyWidth(space)"
+                    ></div>
                 </div>
             </div>
-            <div class="flex justify-center">
-                <div
-                    class="h-(--u) rounded-lg border transition-colors duration-75"
-                    :class="keyClass(space)"
-                    :style="keyWidth(space)"
-                ></div>
-            </div>
+
+            <KeyboardHands v-if="hands" :board="board" :next-key="nextKey" :shift-side="shiftSide" />
         </div>
 
         <ul class="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-zinc-500 [@media(max-height:820px)]:hidden dark:text-zinc-400">

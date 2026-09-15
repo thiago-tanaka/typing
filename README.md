@@ -18,7 +18,7 @@ A web app to practice touch typing.
 
 - 3 つのユニットに各 5 レッスン。ホームポジションから単語・文章まで段階的に練習できます。
 - 入力速度（1 分あたりの正しい文字数、CPM）、正確さ、時間、自己ベストをリアルタイムで表示します。
-- 画面上のキーボードで、次に押すキーと使う指を案内します。
+- 画面上のキーボードに、指ごとの担当エリアと手を表示します。手が止まったときやミスしたときだけ次のキーと使う指を案内するので、一定のリズムで打っている間は視線をテキストに置いたままにできます。
 - レッスンが終わると結果とレベルを表示し、ページを再読み込みせずにスコアを保存します。
 - ログインせずに終えたレッスンの結果も、そのあとログインまたはユーザー登録をすると保存されます。
 - ダークモードに対応しています（OS の設定に追従し、ヘッダーから切り替えも可能）。
@@ -102,7 +102,7 @@ php artisan serve
 
 - 3 units with 5 lessons each, from the home row to words and sentences.
 - Live typing speed (correct characters per minute, CPM), accuracy, time and personal best.
-- An on-screen keyboard shows the next key and the finger to use.
+- An on-screen keyboard with finger zones and hands. It shows the next key and the finger to use only when you pause or miss a key, so typing at a steady pace keeps your eyes on the text.
 - When a lesson ends, a result panel shows the level and saves the score without reloading the page.
 - A result finished before logging in is kept and saved once the user logs in or signs up.
 - Dark mode that follows the system setting and can be switched from the header.
