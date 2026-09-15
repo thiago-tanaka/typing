@@ -7,6 +7,7 @@ use App\Actions\GetPontuacoesGraficoAction;
 use App\Actions\PontuacaoNovaEMaiorAction;
 use App\Models\Lesson;
 use App\Models\Pontuacao;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,25 +35,37 @@ class DigitacaoController extends Controller
         return view('index', compact('texto', 'unidade', 'licao', 'pontuacoes', 'pontuacoes_chart'));
     }
 
-    public function update($unidade, $licao): RedirectResponse
+    public function update($unidade, $licao): RedirectResponse|JsonResponse
     {
-        $lesson = Lesson::whereHas('unit', function ($query) use ($unidade){
+        $lesson = Lesson::whereHas('unit', function ($query) use ($unidade) {
             $query->where('name', $unidade);
         })->where('name', $licao)->firstOrFail();
 
-        if (Auth::check()) {
-            if (
-            (new PontuacaoNovaEMaiorAction)(
-                $lesson,
-                request('licao_velocidade'),
-                request('licao_precisao'))) {
-            $pontuacao = Pontuacao::updateOrCreate(
+        $saved = false;
+
+        if (Auth::check() && (new PontuacaoNovaEMaiorAction)(
+            $lesson,
+            request('licao_velocidade'),
+            request('licao_precisao')
+        )) {
+            Pontuacao::updateOrCreate(
                 ['user_id' => auth()->id(), 'lesson_id' => $lesson->id],
                 ['velocidade' => request('licao_velocidade'), 'precisao' => request('licao_precisao')]
             );
-
-            }
+            $saved = true;
         }
+
+        if (request()->wantsJson()) {
+            $best = Auth::check()
+                ? Pontuacao::where('user_id', auth()->id())->where('lesson_id', $lesson->id)->first()
+                : null;
+
+            return response()->json([
+                'saved' => $saved,
+                'best' => $best ? ['velocidade' => (int) $best->velocidade, 'precisao' => (int) $best->precisao] : null,
+            ]);
+        }
+
         return redirect()->back();
     }
 }

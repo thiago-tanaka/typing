@@ -91,6 +91,30 @@ class RegistraPontuacaoTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_json_request_returns_whether_the_score_was_saved_and_the_best_score()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->postJson('/registra/1/1', ['licao_velocidade' => '120', 'licao_precisao' => '97'])
+            ->assertOk()
+            ->assertExactJson(['saved' => true, 'best' => ['velocidade' => 120, 'precisao' => 97]]);
+
+        $this->actingAs($user)
+            ->postJson('/registra/1/1', ['licao_velocidade' => '200', 'licao_precisao' => '90'])
+            ->assertOk()
+            ->assertExactJson(['saved' => false, 'best' => ['velocidade' => 120, 'precisao' => 97]]);
+    }
+
+    public function test_guest_json_request_is_not_saved()
+    {
+        $this->postJson('/registra/1/1', ['licao_velocidade' => '120', 'licao_precisao' => '97'])
+            ->assertOk()
+            ->assertExactJson(['saved' => false, 'best' => null]);
+
+        $this->assertDatabaseCount('pontuacoes', 0);
+    }
+
     private function score(User $user, string $velocidade, string $precisao): Pontuacao
     {
         return Pontuacao::factory()->for($this->lesson)->create([
