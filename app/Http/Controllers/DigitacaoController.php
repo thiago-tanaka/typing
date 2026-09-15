@@ -3,36 +3,53 @@
 namespace App\Http\Controllers;
 
 use App\Actions\GetPontuacoesAction;
-use App\Actions\GetPontuacoesGraficoAction;
 use App\Actions\PontuacaoNovaEMaiorAction;
+use App\Models\Digitacao;
 use App\Models\Lesson;
 use App\Models\Pontuacao;
+use App\Models\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 class DigitacaoController extends Controller
 {
     public function index($unidade = 1, $licao = 1)
     {
-        $pontuacoes = [];
-        $pontuacoes_chart = [];
-        if (auth()->user()) {
-            $pontuacoes = (new GetPontuacoesAction)($unidade);
-            $pontuacoes_chart = (new GetPontuacoesGraficoAction)($unidade);
-        }
-
         $lesson = Lesson::whereHas('unit', function ($query) use ($unidade) {
-            $query->where('name', $unidade);
-        })->where('name', $licao)->firstOrFail();
+            $query->where('name', (string) $unidade);
+        })->where('name', (string) $licao)->firstOrFail();
 
-        $texto = [
-            1 => $lesson->text1,
-            2 => $lesson->text2,
-            3 => $lesson->text3,
-            4 => $lesson->text4
-        ];
-        return view('index', compact('texto', 'unidade', 'licao', 'pontuacoes', 'pontuacoes_chart'));
+        $unidade = (int) $unidade;
+        $licao = (int) $licao;
+
+        $units = Unit::with(['lessons' => fn ($query) => $query->select('id', 'unit_id', 'name')])
+            ->get()
+            ->sortBy(fn (Unit $unit) => (int) $unit->name)
+            ->values();
+
+        $pontuacoes = Auth::check() ? (new GetPontuacoesAction)((string) $unidade) : [];
+
+        return view('index', [
+            'unidade' => $unidade,
+            'licao' => $licao,
+            'units' => $units,
+            'pontuacoes' => $pontuacoes,
+            'niveis' => Digitacao::niveis(),
+            'lessonProps' => [
+                'unit' => $unidade,
+                'lesson' => $licao,
+                'lines' => [$lesson->text1, $lesson->text2, $lesson->text3, $lesson->text4],
+                'saveUrl' => Auth::check() ? url("/registra/{$unidade}/{$licao}") : null,
+                'nextUrl' => $this->nextLessonUrl($units, $unidade, $licao),
+                'loginUrl' => route('login'),
+                'registerUrl' => Route::has('register') ? route('register') : null,
+                'best' => $pontuacoes[$licao] ?? null,
+                'levels' => Digitacao::niveis(),
+            ],
+        ]);
     }
 
     public function update($unidade, $licao): RedirectResponse|JsonResponse
@@ -67,5 +84,25 @@ class DigitacaoController extends Controller
         }
 
         return redirect()->back();
+    }
+
+    /**
+     * The next lesson of the same unit or, after its last lesson, the first
+     * lesson of the next unit.
+     */
+    private function nextLessonUrl(Collection $units, int $unidade, int $licao): ?string
+    {
+        $numbers = fn (Unit $unit) => $unit->lessons->map(fn (Lesson $lesson) => (int) $lesson->name);
+
+        $current = $units->first(fn (Unit $unit) => (int) $unit->name === $unidade);
+        $nextLesson = $current ? $numbers($current)->filter(fn (int $number) => $number > $licao)->min() : null;
+
+        if ($nextLesson !== null) {
+            return url("/{$unidade}/{$nextLesson}");
+        }
+
+        $nextUnit = $units->first(fn (Unit $unit) => (int) $unit->name > $unidade && $unit->lessons->isNotEmpty());
+
+        return $nextUnit ? url("/{$nextUnit->name}/{$numbers($nextUnit)->min()}") : null;
     }
 }

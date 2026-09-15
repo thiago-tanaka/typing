@@ -30,7 +30,7 @@ class AdminAreaTest extends TestCase
         $response = $this->actingAs($admin)->get('/settings');
 
         $response->assertOk();
-        $response->assertSee('<lesson-list></lesson-list>', false);
+        $response->assertSee('data-vue="lesson-editor"', false);
     }
 
     public function test_admin_updates_lesson_texts()

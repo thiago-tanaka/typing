@@ -23,8 +23,9 @@ class DigitacaoPageTest extends TestCase
         $response->assertOk();
         $response->assertSee('alfa um');
         $response->assertSee('alfa quatro');
-        $response->assertDontSee('250 / 98%');
-        $response->assertDontSee('id="formulario"', false);
+        $response->assertSee('data-vue="typing-lesson"', false);
+        $response->assertSee('"saveUrl":null');
+        $response->assertSee('250+ CPM · 98%+');
     }
 
     public function test_guest_sees_requested_unit_and_lesson()
@@ -66,7 +67,7 @@ class DigitacaoPageTest extends TestCase
         }
     }
 
-    public function test_verified_user_sees_own_scores_chart_and_score_form()
+    public function test_verified_user_sees_own_scores_and_can_save()
     {
         $user = User::factory()->create();
         $licao1 = $this->lesson('1', '1');
@@ -77,13 +78,23 @@ class DigitacaoPageTest extends TestCase
         $response = $this->actingAs($user)->get('/1/1');
 
         $response->assertOk();
-        $response->assertSee('260 / 99%');
-        $response->assertSee('color: #c200c2', false);
-        $response->assertDontSee('100 / 97%');
-        $response->assertSee('250 / 98%');
-        $response->assertSee('160 / 97%');
-        $response->assertSee('75 / 96%');
-        $response->assertSee('action="/registra/1/1"', false);
+        $response->assertSee('260 · 99%');
+        $response->assertSee('data-level="excellent"', false);
+        $response->assertDontSee('100 · 97%');
+        $response->assertDontSee('data-level="average"', false);
+        $response->assertSee('"best":{"velocidade":260,"precisao":99,"nivel":"excellent"}');
+        $response->assertSee('"saveUrl":"http://localhost/registra/1/1"');
+    }
+
+    public function test_lesson_page_links_to_the_next_lesson()
+    {
+        $this->lesson('1', '1');
+        $this->lesson('1', '2');
+        $this->lesson('2', '1');
+
+        $this->get('/1/1')->assertSee('"nextUrl":"http://localhost/1/2"');
+        $this->get('/1/2')->assertSee('"nextUrl":"http://localhost/2/1"');
+        $this->get('/2/1')->assertSee('"nextUrl":null');
     }
 
     public function test_unverified_user_is_redirected_to_email_verification()
