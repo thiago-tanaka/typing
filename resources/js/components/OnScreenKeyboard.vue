@@ -62,7 +62,7 @@ function keyClass(key) {
 <template>
     <div class="hidden md:block" aria-hidden="true">
         <div
-            class="mx-auto w-fit select-none rounded-2xl border border-zinc-200 bg-zinc-100 p-2.5 [--u:2.4rem] lg:[--u:2.75rem] dark:border-zinc-800 dark:bg-zinc-900"
+            class="mx-auto w-fit select-none rounded-2xl border border-zinc-200 bg-zinc-100 p-2.5 on-screen-keyboard dark:border-zinc-800 dark:bg-zinc-900"
         >
             <div v-for="(row, index) in rows" :key="index" class="mb-1.5 flex gap-1.5">
                 <div
@@ -88,7 +88,7 @@ function keyClass(key) {
             </div>
         </div>
 
-        <ul class="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-zinc-500 dark:text-zinc-400">
+        <ul class="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-zinc-500 [@media(max-height:820px)]:hidden dark:text-zinc-400">
             <li v-for="item in legend" :key="item.label" class="flex items-center gap-1.5">
                 <span class="size-3 rounded border" :class="item.zone"></span>
                 {{ item.label }}

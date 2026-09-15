@@ -33,6 +33,7 @@ const saved = ref(false);
 const bestScore = ref(props.best);
 const previousBest = ref(props.best);
 const imeWarning = ref(false);
+const root = ref(null);
 
 let ticker = null;
 let flashTimer = null;
@@ -44,6 +45,9 @@ const primaryButton =
     'inline-flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500';
 const secondaryButton =
     'inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700';
+
+const smallButton =
+    'ml-auto inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700';
 
 const started = computed(() => startedAt.value !== null);
 const finished = computed(() => finishedAt.value !== null);
@@ -240,6 +244,16 @@ async function save() {
     }
 }
 
+// On short screens, bring the text and the keyboard into view when the lesson starts.
+function keepLessonInView() {
+    const section = root.value;
+
+    if (section && section.getBoundingClientRect().bottom > window.innerHeight) {
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        section.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+    }
+}
+
 function flashError(key) {
     errorFlash.value = true;
     wrongKey.value = keyFor(key)?.key ?? null;
@@ -332,6 +346,7 @@ function onKeydown(event) {
     if (!started.value) {
         startedAt.value = performance.now();
         startTicker();
+        keepLessonInView();
     }
 
     correct.value += 1;
@@ -353,32 +368,35 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <section class="space-y-5" :aria-label="`Unit ${unit}, lesson ${lesson}`">
+    <section ref="root" class="scroll-mt-20 space-y-4" :aria-label="`Unit ${unit}, lesson ${lesson}`">
         <p
             class="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 sm:hidden dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200"
         >
             This course is made for a physical keyboard. Open it on a computer for the full experience.
         </p>
 
-        <dl class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div
-                v-for="stat in stats"
-                :key="stat.label"
-                class="rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
-            >
-                <dt class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                    {{ stat.label }}
-                </dt>
-                <dd class="mt-1 flex items-baseline gap-1 text-2xl font-semibold tabular-nums">
-                    {{ stat.value }}
-                    <span v-if="stat.unit" class="text-sm font-medium text-zinc-500 dark:text-zinc-400">{{ stat.unit }}</span>
-                </dd>
-            </div>
-        </dl>
-
         <div
-            class="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+            class="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
         >
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-2 px-5 py-2.5 sm:px-8">
+                <dl class="flex flex-wrap items-baseline gap-x-6 gap-y-1">
+                    <div v-for="stat in stats" :key="stat.label" class="flex items-baseline gap-1.5">
+                        <dt class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                            {{ stat.label }}
+                        </dt>
+                        <dd class="text-xl font-semibold tabular-nums">
+                            {{ stat.value }}
+                            <span v-if="stat.unit" class="text-xs font-medium text-zinc-500 dark:text-zinc-400">{{
+                                stat.unit
+                            }}</span>
+                        </dd>
+                    </div>
+                </dl>
+                <button type="button" :class="smallButton" @click="restartFromButton">
+                    Restart <kbd :class="kbd">Esc</kbd>
+                </button>
+            </div>
+
             <div
                 class="h-1 bg-zinc-100 dark:bg-zinc-800"
                 role="progressbar"
@@ -390,60 +408,65 @@ onBeforeUnmount(() => {
                 <div class="h-full bg-orange-500 transition-[width] duration-150" :style="{ width: `${progress}%` }"></div>
             </div>
 
-            <div
-                class="min-h-64 px-5 py-6 font-mono text-lg leading-loose tracking-wide sm:px-8 sm:text-2xl"
-                :class="{ 'motion-safe:animate-shake': errorFlash }"
-            >
-                <p v-for="(text, lineIndex) in lines" :key="lineIndex" class="whitespace-pre-wrap break-words">
-                    <span v-for="(character, charIndex) in text" :key="charIndex" :class="charClass(lineIndex, charIndex)">{{
-                        character
-                    }}</span>
-                </p>
-            </div>
-
-            <div
-                v-if="finished"
-                class="absolute inset-0 grid place-items-center bg-white/90 p-4 backdrop-blur-sm dark:bg-zinc-900/90"
-                role="status"
-                aria-live="polite"
-            >
-                <div class="text-center">
-                    <p class="text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-                        Lesson complete
-                    </p>
-                    <p class="mt-2 text-4xl font-semibold tabular-nums sm:text-5xl">
-                        {{ speed }}<span class="text-lg font-medium text-zinc-500 dark:text-zinc-400"> CPM</span>
-                        <span class="px-2 text-zinc-300 dark:text-zinc-600">·</span>
-                        {{ accuracy }}<span class="text-lg font-medium text-zinc-500 dark:text-zinc-400">%</span>
-                    </p>
-                    <p class="mt-3">
+            <div class="relative">
+                <div
+                    class="px-5 py-5 font-mono text-lg leading-relaxed tracking-wide sm:px-8 sm:text-2xl"
+                    :class="{ 'motion-safe:animate-shake': errorFlash }"
+                >
+                    <p v-for="(text, lineIndex) in lines" :key="lineIndex" class="whitespace-pre-wrap break-words">
                         <span
-                            class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset"
-                            :class="level.badge"
-                            >{{ level.label }}</span
+                            v-for="(character, charIndex) in text"
+                            :key="charIndex"
+                            :class="charClass(lineIndex, charIndex)"
+                            >{{ character }}</span
                         >
                     </p>
-                    <p v-if="saveMessage" class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">{{ saveMessage }}</p>
-                    <p v-if="!saveUrl || saveState === 'expired'" class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">
-                        <a :href="loginUrl" class="font-medium text-orange-600 hover:underline dark:text-orange-400">Log in</a>
-                        <template v-if="registerUrl">
-                            or
-                            <a :href="registerUrl" class="font-medium text-orange-600 hover:underline dark:text-orange-400"
-                                >create an account</a
+                </div>
+
+                <div
+                    v-if="finished"
+                    class="absolute inset-0 grid place-items-center bg-white/90 px-4 backdrop-blur-sm dark:bg-zinc-900/90"
+                    role="status"
+                    aria-live="polite"
+                >
+                    <div class="text-center">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+                            Lesson complete
+                        </p>
+                        <div class="mt-1 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+                            <p class="text-4xl font-semibold tabular-nums">
+                                {{ speed }}<span class="text-base font-medium text-zinc-500 dark:text-zinc-400"> CPM</span>
+                                <span class="px-1 text-zinc-300 dark:text-zinc-600">·</span>
+                                {{ accuracy }}<span class="text-base font-medium text-zinc-500 dark:text-zinc-400">%</span>
+                            </p>
+                            <span
+                                class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset"
+                                :class="level.badge"
+                                >{{ level.label }}</span
                             >
-                        </template>
-                        to save your scores.
-                    </p>
-                    <div class="mt-5 flex flex-wrap justify-center gap-2">
-                        <button type="button" :class="secondaryButton" @click="restartFromButton">
-                            Try again <kbd :class="kbd">Esc</kbd>
-                        </button>
-                        <button v-if="saveState === 'error'" type="button" :class="secondaryButton" @click="save">
-                            Retry saving
-                        </button>
-                        <a v-if="nextUrl" :href="nextUrl" :class="primaryButton">
-                            Next lesson <kbd class="rounded-md bg-white/20 px-1.5 py-0.5 font-mono text-xs">Enter</kbd>
-                        </a>
+                        </div>
+                        <p v-if="saveMessage" class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{{ saveMessage }}</p>
+                        <p v-if="!saveUrl || saveState === 'expired'" class="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+                            <a :href="loginUrl" class="font-medium text-orange-600 hover:underline dark:text-orange-400">Log in</a>
+                            <template v-if="registerUrl">
+                                or
+                                <a :href="registerUrl" class="font-medium text-orange-600 hover:underline dark:text-orange-400"
+                                    >create an account</a
+                                >
+                            </template>
+                            to save your scores.
+                        </p>
+                        <div class="mt-4 flex flex-wrap justify-center gap-2">
+                            <button type="button" :class="secondaryButton" @click="restartFromButton">
+                                Try again <kbd :class="kbd">Esc</kbd>
+                            </button>
+                            <button v-if="saveState === 'error'" type="button" :class="secondaryButton" @click="save">
+                                Retry saving
+                            </button>
+                            <a v-if="nextUrl" :href="nextUrl" :class="primaryButton">
+                                Next lesson <kbd class="rounded-md bg-white/20 px-1.5 py-0.5 font-mono text-xs">Enter</kbd>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -458,26 +481,22 @@ onBeforeUnmount(() => {
             the lesson.
         </p>
 
-        <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-zinc-600 dark:text-zinc-400">
-            <p>
-                <template v-if="finished">
-                    Press <kbd :class="kbd">Esc</kbd> to try again<template v-if="nextUrl">
-                        or <kbd :class="kbd">Enter</kbd> for the next lesson</template
-                    >.
-                </template>
-                <template v-else-if="!started">
-                    Start typing to begin. The timer starts with your first correct key.
-                </template>
-                <template v-else>
-                    Next key <kbd :class="kbd">{{ nextLabel }}</kbd>
-                    <template v-if="fingerLabel"> with your {{ fingerLabel }}</template>
-                    <template v-if="nextKey?.shift"> + Shift</template>
-                </template>
-            </p>
-            <button v-if="!finished" type="button" :class="secondaryButton" @click="restartFromButton">
-                Restart <kbd :class="kbd">Esc</kbd>
-            </button>
-        </div>
+        <p class="text-sm text-zinc-600 dark:text-zinc-400">
+            <template v-if="finished">
+                Press <kbd :class="kbd">Esc</kbd> to try again<template v-if="nextUrl">
+                    or <kbd :class="kbd">Enter</kbd> for the next lesson</template
+                >.
+            </template>
+            <template v-else-if="!started">
+                Start typing to begin: the timer starts with your first correct key. Keep your eyes on the text, not on
+                your hands.
+            </template>
+            <template v-else>
+                Next key <kbd :class="kbd">{{ nextLabel }}</kbd>
+                <template v-if="fingerLabel"> with your {{ fingerLabel }}</template>
+                <template v-if="nextKey?.shift"> + Shift</template>
+            </template>
+        </p>
 
         <OnScreenKeyboard :next-key="nextKey?.key ?? null" :shift="nextKey?.shift ?? false" :wrong-key="wrongKey" />
     </section>

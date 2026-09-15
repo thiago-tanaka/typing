@@ -39,3 +39,22 @@
         color-scheme: dark;
     }
 }
+
+@layer components {
+    .on-screen-keyboard {
+        --u: 2.4rem;
+    }
+
+    @media (min-width: 64rem) {
+        .on-screen-keyboard {
+            --u: 2.5rem;
+        }
+    }
+
+    /* Short screens (a 1080p display with 125% scaling, small laptops): smaller keys so the lesson fits. */
+    @media (max-height: 820px) {
+        .on-screen-keyboard {
+            --u: 2.1rem;
+        }
+    }
+}

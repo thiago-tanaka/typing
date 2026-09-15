@@ -15,12 +15,11 @@
 @endphp
 
 @section('content')
-    <div class="space-y-8">
-        <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <div class="space-y-4">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <p class="text-sm font-medium text-orange-600 dark:text-orange-400">Unit {{ $unidade }} · Lesson {{ $licao }}</p>
-                <h1 class="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">Practice touch typing</h1>
-                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Keep your eyes on the text, not on your hands.</p>
+                <h1 class="text-xl font-semibold tracking-tight sm:text-2xl">Practice touch typing</h1>
             </div>
 
             <nav aria-label="Units" class="inline-flex gap-1 self-start rounded-xl bg-zinc-200/70 p-1 sm:self-auto dark:bg-zinc-800/70">
@@ -48,21 +47,20 @@
                     <li>
                         <a href="{{ url("/{$unidade}/{$number}") }}"
                            @class([
-                               'flex min-w-0 flex-col items-center rounded-xl border px-1 py-2 text-center transition focus-visible:outline-2 focus-visible:outline-orange-500 sm:px-2 sm:py-2.5',
+                               'flex min-w-0 flex-col items-center rounded-xl border px-1 py-1.5 text-center transition focus-visible:outline-2 focus-visible:outline-orange-500 sm:px-2 sm:py-2',
                                'border-orange-500 bg-orange-50 ring-1 ring-orange-500 dark:bg-orange-400/10' => $active,
                                'border-zinc-200 bg-white hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700' => ! $active,
                            ])
                            @if ($active) aria-current="page" @endif
                            @if ($score) data-level="{{ $score['nivel'] }}" @endif
                            data-lesson-card="{{ $number }}">
-                            <span class="sr-only text-xs text-zinc-500 sm:not-sr-only dark:text-zinc-400">Lesson</span>
-                            <span class="text-lg font-semibold leading-tight">{{ $number }}</span>
-                            <span data-score class="mt-1 flex items-center gap-1.5 text-xs tabular-nums text-zinc-600 dark:text-zinc-300" @unless ($score) hidden @endunless>
+                            <span class="text-sm font-semibold leading-tight"><span class="sr-only font-normal text-zinc-500 sm:not-sr-only dark:text-zinc-400">Lesson </span>{{ $number }}</span>
+                            <span data-score class="mt-0.5 flex items-center gap-1.5 text-xs tabular-nums text-zinc-600 dark:text-zinc-300" @unless ($score) hidden @endunless>
                                 <span data-score-dot class="size-2 shrink-0 rounded-full {{ $score ? $levelStyles[$score['nivel']]['dot'] : '' }}" aria-hidden="true"></span>
                                 <span data-score-text class="hidden sm:inline">{{ $score ? $score['velocidade'].' · '.$score['precisao'].'%' : '' }}</span>
                                 <span data-score-label class="sr-only">{{ $score ? $levelStyles[$score['nivel']]['label'] : '' }}</span>
                             </span>
-                            <span data-score-empty class="mt-1 text-xs text-zinc-400 dark:text-zinc-600" aria-hidden="true" @if ($score) hidden @endif>—</span>
+                            <span data-score-empty class="mt-0.5 text-xs text-zinc-400 dark:text-zinc-600" aria-hidden="true" @if ($score) hidden @endif>—</span>
                         </a>
                     </li>
                 @endforeach
@@ -70,7 +68,7 @@
         </nav>
 
         <div data-vue="typing-lesson" data-props="{{ json_encode($lessonProps, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}">
-            <div class="min-h-64 rounded-2xl border border-zinc-200 bg-white px-5 py-6 font-mono text-lg leading-loose tracking-wide text-zinc-800 shadow-sm sm:px-8 sm:text-2xl dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
+            <div class="min-h-[16.5rem] rounded-2xl border border-zinc-200 bg-white px-5 py-5 font-mono text-lg leading-relaxed tracking-wide text-zinc-800 shadow-sm sm:px-8 sm:text-2xl dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
                 @foreach ($lessonProps['lines'] as $line)
                     <p class="whitespace-pre-wrap break-words">{{ $line }}</p>
                 @endforeach
