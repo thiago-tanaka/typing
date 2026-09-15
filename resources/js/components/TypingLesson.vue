@@ -32,9 +32,11 @@ const saveState = ref('idle');
 const saved = ref(false);
 const bestScore = ref(props.best);
 const previousBest = ref(props.best);
+const imeWarning = ref(false);
 
 let ticker = null;
 let flashTimer = null;
+let imeTimer = null;
 
 const kbd =
     'rounded-md border border-zinc-300 bg-zinc-100 px-1.5 py-0.5 font-mono text-xs text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200';
@@ -81,8 +83,8 @@ const stats = computed(() => [
 const improved = computed(
     () =>
         !previousBest.value ||
-        speed.value > previousBest.value.velocidade ||
-        accuracy.value > previousBest.value.precisao,
+        speed.value !== previousBest.value.velocidade ||
+        accuracy.value !== previousBest.value.precisao,
 );
 
 const saveMessage = computed(() => {
@@ -95,6 +97,12 @@ const saveMessage = computed(() => {
             return 'Saving your score…';
         case 'error':
             return 'Your score could not be saved. Check your connection and try again.';
+        case 'expired':
+            return 'Your session has expired, so this score was not saved.';
+        case 'unverified':
+            return 'Verify your email address to save your scores.';
+        case 'invalid':
+            return 'This result could not be saved.';
         case 'saved':
             if (!saved.value) {
                 return bestScore.value
@@ -202,11 +210,27 @@ async function save() {
             body: JSON.stringify({ licao_velocidade: speed.value, licao_precisao: accuracy.value }),
         });
 
+        const problems = { 401: 'expired', 403: 'unverified', 419: 'expired', 422: 'invalid' };
+
+        if (problems[response.status]) {
+            saveState.value = problems[response.status];
+
+            return;
+        }
+
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }
 
         const data = await response.json();
+
+        // No best score back means the session no longer belongs to a logged-in user.
+        if (data.best === null) {
+            saveState.value = 'expired';
+
+            return;
+        }
+
         saved.value = data.saved;
         bestScore.value = data.best;
         updateLessonCard(data.best);
@@ -224,6 +248,14 @@ function flashError(key) {
         errorFlash.value = false;
         wrongKey.value = null;
     }, 180);
+}
+
+function warnAboutIme() {
+    imeWarning.value = true;
+    clearTimeout(imeTimer);
+    imeTimer = setTimeout(() => {
+        imeWarning.value = false;
+    }, 5000);
 }
 
 function restart() {
@@ -248,13 +280,20 @@ function restartFromButton(event) {
 }
 
 function onKeydown(event) {
-    if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || event.isComposing) {
+    if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) {
         return;
     }
 
     const target = event.target;
 
     if (target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) {
+        return;
+    }
+
+    // With a Japanese input method on, the browser sends composition keys instead of characters.
+    if (event.isComposing || event.key === 'Process') {
+        warnAboutIme();
+
         return;
     }
 
@@ -278,6 +317,8 @@ function onKeydown(event) {
     if (event.key.length !== 1) {
         return;
     }
+
+    imeWarning.value = false;
 
     event.preventDefault();
     attempts.value += 1;
@@ -307,6 +348,7 @@ onBeforeUnmount(() => {
     window.removeEventListener('keydown', onKeydown);
     stopTicker();
     clearTimeout(flashTimer);
+    clearTimeout(imeTimer);
 });
 </script>
 
@@ -382,7 +424,7 @@ onBeforeUnmount(() => {
                         >
                     </p>
                     <p v-if="saveMessage" class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">{{ saveMessage }}</p>
-                    <p v-if="!saveUrl" class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">
+                    <p v-if="!saveUrl || saveState === 'expired'" class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">
                         <a :href="loginUrl" class="font-medium text-orange-600 hover:underline dark:text-orange-400">Log in</a>
                         <template v-if="registerUrl">
                             or
@@ -406,6 +448,15 @@ onBeforeUnmount(() => {
                 </div>
             </div>
         </div>
+
+        <p
+            v-if="imeWarning"
+            role="alert"
+            class="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200"
+        >
+            Your keyboard is in Japanese input mode. Switch to direct input (for example with the 半角/全角 key) to type
+            the lesson.
+        </p>
 
         <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-zinc-600 dark:text-zinc-400">
             <p>
