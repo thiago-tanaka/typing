@@ -1,30 +1,21 @@
-require('./bootstrap');
+import { createApp } from 'vue';
+import LessonEditor from './components/LessonEditor.vue';
+import TypingLesson from './components/TypingLesson.vue';
+import { setupThemeToggle } from './theme';
 
-window.Vue = require('vue').default;
+setupThemeToggle();
 
-import vuetify from './vuetify';
+const components = {
+    'lesson-editor': LessonEditor,
+    'typing-lesson': TypingLesson,
+};
 
-import AxiosWrapper from 'sb-axios-wrapper'
+// Blade pages mark interactive islands with data-vue="name" and pass the
+// component props as JSON in data-props.
+document.querySelectorAll('[data-vue]').forEach((element) => {
+    const component = components[element.dataset.vue];
 
-import Notifications from 'vue-notification'
-Vue.mixin(AxiosWrapper)
-Vue.use(Notifications)
-
-Vue.component('lesson-list', require('./components/LessonListComponent.vue').default);
-Vue.component('lesson-component', require('./components/LessonComponent.vue').default);
-Vue.component('notification', require('./components/NotificationComponent.vue').default);
-
-
-const app = new Vue({
-    el: '#app',
-    vuetify
+    if (component) {
+        createApp(component, JSON.parse(element.dataset.props || '{}')).mount(element);
+    }
 });
-
-window.app = app
-
-app.$root.$on('notify',(options) => {
-    app.$notify({
-        type: options.status,
-        text: options.message
-    })
-})
