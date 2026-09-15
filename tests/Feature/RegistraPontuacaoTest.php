@@ -51,16 +51,37 @@ class RegistraPontuacaoTest extends TestCase
         $this->assertDatabaseHas('pontuacoes', ['user_id' => $user->id, 'velocidade' => '120', 'precisao' => '98']);
     }
 
-    public function test_score_is_kept_when_speed_or_accuracy_is_lower()
+    public function test_a_higher_level_replaces_the_score_even_with_lower_accuracy()
+    {
+        $user = User::factory()->create();
+        $this->score($user, '75', '100');
+
+        $this->actingAs($user)->post('/registra/1/1', ['licao_velocidade' => '300', 'licao_precisao' => '99']);
+
+        $this->assertDatabaseHas('pontuacoes', ['user_id' => $user->id, 'velocidade' => '300', 'precisao' => '99']);
+    }
+
+    public function test_within_the_same_level_the_higher_net_speed_wins()
     {
         $user = User::factory()->create();
         $this->score($user, '120', '97');
 
         $this->actingAs($user)->post('/registra/1/1', ['licao_velocidade' => '200', 'licao_precisao' => '96']);
-        $this->actingAs($user)->post('/registra/1/1', ['licao_velocidade' => '100', 'licao_precisao' => '99']);
+        $this->assertDatabaseHas('pontuacoes', ['user_id' => $user->id, 'velocidade' => '200', 'precisao' => '96']);
 
+        $this->actingAs($user)->post('/registra/1/1', ['licao_velocidade' => '150', 'licao_precisao' => '97']);
         $this->assertDatabaseCount('pontuacoes', 1);
-        $this->assertDatabaseHas('pontuacoes', ['user_id' => $user->id, 'velocidade' => '120', 'precisao' => '97']);
+        $this->assertDatabaseHas('pontuacoes', ['user_id' => $user->id, 'velocidade' => '200', 'precisao' => '96']);
+    }
+
+    public function test_a_lower_level_never_replaces_the_score()
+    {
+        $user = User::factory()->create();
+        $this->score($user, '250', '98');
+
+        $this->actingAs($user)->post('/registra/1/1', ['licao_velocidade' => '1000', 'licao_precisao' => '90']);
+
+        $this->assertDatabaseHas('pontuacoes', ['user_id' => $user->id, 'velocidade' => '250', 'precisao' => '98']);
     }
 
     public function test_scores_are_compared_as_numbers_not_as_text()
@@ -111,6 +132,34 @@ class RegistraPontuacaoTest extends TestCase
         $this->postJson('/registra/1/1', ['licao_velocidade' => '120', 'licao_precisao' => '97'])
             ->assertOk()
             ->assertExactJson(['saved' => false, 'best' => null]);
+
+        $this->assertDatabaseCount('pontuacoes', 0);
+    }
+
+    public function test_invalid_score_values_are_rejected()
+    {
+        $user = User::factory()->create();
+
+        foreach ([
+            ['licao_velocidade' => 'abc', 'licao_precisao' => '97'],
+            ['licao_velocidade' => '120'],
+            ['licao_velocidade' => '2001', 'licao_precisao' => '97'],
+            ['licao_velocidade' => '120', 'licao_precisao' => '101'],
+            ['licao_velocidade' => '-1', 'licao_precisao' => '97'],
+        ] as $dados) {
+            $this->actingAs($user)->postJson('/registra/1/1', $dados)->assertUnprocessable();
+        }
+
+        $this->assertDatabaseCount('pontuacoes', 0);
+    }
+
+    public function test_unverified_user_cannot_save_a_score()
+    {
+        $user = User::factory()->unverified()->create();
+        $dados = ['licao_velocidade' => '120', 'licao_precisao' => '97'];
+
+        $this->actingAs($user)->post('/registra/1/1', $dados)->assertRedirect('email/verify');
+        $this->actingAs($user)->postJson('/registra/1/1', $dados)->assertForbidden();
 
         $this->assertDatabaseCount('pontuacoes', 0);
     }

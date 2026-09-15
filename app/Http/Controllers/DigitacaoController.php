@@ -58,16 +58,17 @@ class DigitacaoController extends Controller
             $query->where('name', $unidade);
         })->where('name', $licao)->firstOrFail();
 
+        $dados = request()->validate([
+            'licao_velocidade' => ['required', 'integer', 'min:0', 'max:'.Digitacao::VELOCIDADE_MAXIMA],
+            'licao_precisao' => ['required', 'integer', 'min:0', 'max:100'],
+        ]);
+
         $saved = false;
 
-        if (Auth::check() && (new PontuacaoNovaEMaiorAction)(
-            $lesson,
-            request('licao_velocidade'),
-            request('licao_precisao')
-        )) {
+        if (Auth::check() && (new PontuacaoNovaEMaiorAction)($lesson, $dados['licao_velocidade'], $dados['licao_precisao'])) {
             Pontuacao::updateOrCreate(
                 ['user_id' => auth()->id(), 'lesson_id' => $lesson->id],
-                ['velocidade' => request('licao_velocidade'), 'precisao' => request('licao_precisao')]
+                ['velocidade' => $dados['licao_velocidade'], 'precisao' => $dados['licao_precisao']]
             );
             $saved = true;
         }

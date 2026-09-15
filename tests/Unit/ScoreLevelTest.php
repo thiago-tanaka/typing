@@ -32,4 +32,18 @@ class ScoreLevelTest extends TestCase
             ['nivel' => 'average', 'velocidade' => 75, 'precisao' => 96],
         ], Digitacao::niveis());
     }
+
+    public function test_results_compare_by_level_first_and_then_by_net_speed()
+    {
+        // A higher level wins, even against a faster result with poor accuracy.
+        $this->assertGreaterThan(0, Digitacao::compararResultados(250, 98, 1000, 90));
+        $this->assertGreaterThan(0, Digitacao::compararResultados(300, 99, 75, 100));
+
+        // Within the same level, the higher net speed wins.
+        $this->assertGreaterThan(0, Digitacao::compararResultados(200, 96, 120, 97));
+        $this->assertLessThan(0, Digitacao::compararResultados(150, 97, 200, 96));
+
+        // Identical results are equivalent, whether they come as numbers or strings.
+        $this->assertSame(0, Digitacao::compararResultados(120, 97, '120', '97'));
+    }
 }

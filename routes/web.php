@@ -11,7 +11,8 @@ Route::get('/{unidade?}/{licao?}', 'App\Http\Controllers\DigitacaoController@ind
     ->middleware('verifiedifauth');
 
 
-Route::post('/registra/{unidade}/{licao}', 'App\Http\Controllers\DigitacaoController@update');
+Route::post('/registra/{unidade}/{licao}', 'App\Http\Controllers\DigitacaoController@update')
+    ->middleware('verifiedifauth');
 
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['admin']], function () {
