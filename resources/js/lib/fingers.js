@@ -70,6 +70,23 @@ export const FINGER_ZONES = {
     thumb: 'border-zinc-300 bg-white dark:border-zinc-700 dark:bg-zinc-800',
 };
 
+// Stronger versions of the zone colors, for the finger that has to press the next key.
+const PINKY_ACCENT = 'border-rose-500 bg-rose-400/40 dark:border-rose-400 dark:bg-rose-400/30';
+const RING_ACCENT = 'border-amber-500 bg-amber-400/40 dark:border-amber-400 dark:bg-amber-400/30';
+const MIDDLE_ACCENT = 'border-emerald-500 bg-emerald-400/40 dark:border-emerald-400 dark:bg-emerald-400/30';
+
+export const FINGER_ACCENTS = {
+    'left-pinky': PINKY_ACCENT,
+    'left-ring': RING_ACCENT,
+    'left-middle': MIDDLE_ACCENT,
+    'left-index': 'border-sky-500 bg-sky-400/40 dark:border-sky-400 dark:bg-sky-400/30',
+    'right-index': 'border-indigo-500 bg-indigo-400/40 dark:border-indigo-400 dark:bg-indigo-400/30',
+    'right-middle': MIDDLE_ACCENT,
+    'right-ring': RING_ACCENT,
+    'right-pinky': PINKY_ACCENT,
+    thumb: 'border-zinc-500 bg-zinc-400/40 dark:border-zinc-300 dark:bg-zinc-300/30',
+};
+
 export function keyFor(character) {
     if (!character) {
         return null;
