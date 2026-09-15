@@ -24,7 +24,7 @@ class DigitacaoPageTest extends TestCase
         $response->assertSee('alfa um');
         $response->assertSee('alfa quatro');
         $response->assertSee('data-vue="typing-lesson"', false);
-        $response->assertSee('"saveUrl":null');
+        $response->assertSee('"canSave":false');
         $response->assertSee('250+ CPM · 98%+');
     }
 
@@ -84,6 +84,7 @@ class DigitacaoPageTest extends TestCase
         $response->assertDontSee('data-level="average"', false);
         $response->assertSee('"best":{"velocidade":260,"precisao":99,"nivel":"excellent"}');
         $response->assertSee('"saveUrl":"http://localhost/registra/1/1"');
+        $response->assertSee('"canSave":true');
     }
 
     public function test_lesson_page_links_to_the_next_lesson()

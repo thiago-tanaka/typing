@@ -9,6 +9,7 @@ const props = defineProps({
     lesson: { type: Number, required: true },
     lines: { type: Array, required: true },
     saveUrl: { type: String, default: null },
+    canSave: { type: Boolean, default: false },
     nextUrl: { type: String, default: null },
     loginUrl: { type: String, required: true },
     registerUrl: { type: String, default: null },
@@ -92,7 +93,7 @@ const improved = computed(
 );
 
 const saveMessage = computed(() => {
-    if (!props.saveUrl) {
+    if (!props.canSave && saveState.value !== 'invalid') {
         return '';
     }
 
@@ -103,6 +104,8 @@ const saveMessage = computed(() => {
             return 'Your score could not be saved. Check your connection and try again.';
         case 'expired':
             return 'Your session has expired, so this score was not saved.';
+        case 'relogin':
+            return 'Your session has expired.';
         case 'unverified':
             return 'Verify your email address to save your scores.';
         case 'invalid':
@@ -119,6 +122,10 @@ const saveMessage = computed(() => {
             return '';
     }
 });
+
+const showLoginPrompt = computed(
+    () => saveState.value === 'relogin' || (!props.canSave && ['saving', 'pending'].includes(saveState.value)),
+);
 
 function charClass(lineIndex, charIndex) {
     const done = finished.value || lineIndex < line.value || (lineIndex === line.value && charIndex < position.value);
@@ -228,9 +235,9 @@ async function save() {
 
         const data = await response.json();
 
-        // No best score back means the session no longer belongs to a logged-in user.
-        if (data.best === null) {
-            saveState.value = 'expired';
+        // The server keeps a guest's result and saves it once they log in or sign up.
+        if (data.pending) {
+            saveState.value = props.canSave ? 'relogin' : 'pending';
 
             return;
         }
@@ -446,7 +453,7 @@ onBeforeUnmount(() => {
                             >
                         </div>
                         <p v-if="saveMessage" class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{{ saveMessage }}</p>
-                        <p v-if="!saveUrl || saveState === 'expired'" class="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+                        <p v-if="showLoginPrompt" class="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
                             <a :href="loginUrl" class="font-medium text-orange-600 hover:underline dark:text-orange-400">Log in</a>
                             <template v-if="registerUrl">
                                 or
@@ -454,7 +461,7 @@ onBeforeUnmount(() => {
                                     >create an account</a
                                 >
                             </template>
-                            to save your scores.
+                            to save this result.
                         </p>
                         <div class="mt-4 flex flex-wrap justify-center gap-2">
                             <button type="button" :class="secondaryButton" @click="restartFromButton">

@@ -16,11 +16,16 @@ use Illuminate\Support\Facades\Route;
 
 class DigitacaoController extends Controller
 {
+    // A result finished by a guest, kept in the session until they log in or sign up.
+    private const RESULTADO_PENDENTE = 'resultado_pendente';
+
     public function index($unidade = 1, $licao = 1)
     {
         $lesson = Lesson::whereHas('unit', function ($query) use ($unidade) {
             $query->where('name', (string) $unidade);
         })->where('name', (string) $licao)->firstOrFail();
+
+        $resultadoPendente = Auth::check() ? $this->salvarResultadoPendente() : null;
 
         $unidade = (int) $unidade;
         $licao = (int) $licao;
@@ -38,11 +43,13 @@ class DigitacaoController extends Controller
             'units' => $units,
             'pontuacoes' => $pontuacoes,
             'niveis' => Digitacao::niveis(),
+            'resultadoPendente' => $resultadoPendente,
             'lessonProps' => [
                 'unit' => $unidade,
                 'lesson' => $licao,
                 'lines' => [$lesson->text1, $lesson->text2, $lesson->text3, $lesson->text4],
-                'saveUrl' => Auth::check() ? url("/registra/{$unidade}/{$licao}") : null,
+                'saveUrl' => url("/registra/{$unidade}/{$licao}"),
+                'canSave' => Auth::check(),
                 'nextUrl' => $this->nextLessonUrl($units, $unidade, $licao),
                 'loginUrl' => route('login'),
                 'registerUrl' => Route::has('register') ? route('register') : null,
@@ -63,20 +70,27 @@ class DigitacaoController extends Controller
             'licao_precisao' => ['required', 'integer', 'min:0', 'max:100'],
         ]);
 
-        $saved = false;
+        $velocidade = (int) $dados['licao_velocidade'];
+        $precisao = (int) $dados['licao_precisao'];
 
-        if (Auth::check() && (new PontuacaoNovaEMaiorAction)($lesson, $dados['licao_velocidade'], $dados['licao_precisao'])) {
-            Pontuacao::updateOrCreate(
-                ['user_id' => auth()->id(), 'lesson_id' => $lesson->id],
-                ['velocidade' => $dados['licao_velocidade'], 'precisao' => $dados['licao_precisao']]
-            );
-            $saved = true;
+        if (! Auth::check()) {
+            session()->put(self::RESULTADO_PENDENTE, [
+                'lesson_id' => $lesson->id,
+                'velocidade' => $velocidade,
+                'precisao' => $precisao,
+            ]);
+            // After logging in, come back to this lesson.
+            session()->put('url.intended', url("/{$unidade}/{$licao}"));
+
+            return request()->wantsJson()
+                ? response()->json(['saved' => false, 'best' => null, 'pending' => true])
+                : redirect()->back();
         }
 
+        $saved = $this->salvarResultado($lesson, $velocidade, $precisao);
+
         if (request()->wantsJson()) {
-            $best = Auth::check()
-                ? Pontuacao::where('user_id', auth()->id())->where('lesson_id', $lesson->id)->first()
-                : null;
+            $best = Pontuacao::where('user_id', auth()->id())->where('lesson_id', $lesson->id)->first();
 
             return response()->json([
                 'saved' => $saved,
@@ -85,6 +99,45 @@ class DigitacaoController extends Controller
         }
 
         return redirect()->back();
+    }
+
+    /**
+     * Stores the result for the logged-in user when it beats their best score.
+     */
+    private function salvarResultado(Lesson $lesson, int $velocidade, int $precisao): bool
+    {
+        if (! (new PontuacaoNovaEMaiorAction)($lesson, $velocidade, $precisao)) {
+            return false;
+        }
+
+        Pontuacao::updateOrCreate(
+            ['user_id' => auth()->id(), 'lesson_id' => $lesson->id],
+            ['velocidade' => $velocidade, 'precisao' => $precisao]
+        );
+
+        return true;
+    }
+
+    /**
+     * Saves the result the user finished as a guest, the first time a lesson
+     * page opens after they log in (or verify their email).
+     */
+    private function salvarResultadoPendente(): ?array
+    {
+        $pendente = session()->pull(self::RESULTADO_PENDENTE);
+        $lesson = $pendente ? Lesson::with('unit')->find($pendente['lesson_id']) : null;
+
+        if (! $lesson) {
+            return null;
+        }
+
+        return [
+            'unidade' => $lesson->unit->name,
+            'licao' => $lesson->name,
+            'velocidade' => $pendente['velocidade'],
+            'precisao' => $pendente['precisao'],
+            'salvo' => $this->salvarResultado($lesson, $pendente['velocidade'], $pendente['precisao']),
+        ];
     }
 
     /**

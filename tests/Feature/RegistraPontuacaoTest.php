@@ -127,11 +127,12 @@ class RegistraPontuacaoTest extends TestCase
             ->assertExactJson(['saved' => false, 'best' => ['velocidade' => 120, 'precisao' => 97]]);
     }
 
-    public function test_guest_json_request_is_not_saved()
+    public function test_guest_result_is_kept_in_the_session_instead_of_saved()
     {
         $this->postJson('/registra/1/1', ['licao_velocidade' => '120', 'licao_precisao' => '97'])
             ->assertOk()
-            ->assertExactJson(['saved' => false, 'best' => null]);
+            ->assertExactJson(['saved' => false, 'best' => null, 'pending' => true])
+            ->assertSessionHas('resultado_pendente', ['lesson_id' => $this->lesson->id, 'velocidade' => 120, 'precisao' => 97]);
 
         $this->assertDatabaseCount('pontuacoes', 0);
     }

@@ -20,6 +20,7 @@ A web app to practice touch typing.
 - 入力速度（1 分あたりの正しい文字数、CPM）、正確さ、時間、自己ベストをリアルタイムで表示します。
 - 画面上のキーボードで、次に押すキーと使う指を案内します。
 - レッスンが終わると結果とレベルを表示し、ページを再読み込みせずにスコアを保存します。
+- ログインせずに終えたレッスンの結果も、そのあとログインまたはユーザー登録をすると保存されます。
 - ダークモードに対応しています（OS の設定に追従し、ヘッダーから切り替えも可能）。
 - 管理者は画面からレッスンの文章を編集できます。
 
@@ -103,6 +104,7 @@ php artisan serve
 - Live typing speed (correct characters per minute, CPM), accuracy, time and personal best.
 - An on-screen keyboard shows the next key and the finger to use.
 - When a lesson ends, a result panel shows the level and saves the score without reloading the page.
+- A result finished before logging in is kept and saved once the user logs in or signs up.
 - Dark mode that follows the system setting and can be switched from the header.
 - Admins can edit the lesson texts from the browser.
 

@@ -16,6 +16,16 @@
 
 @section('content')
     <div class="space-y-4">
+        @if ($resultadoPendente)
+            @if ($resultadoPendente['salvo'])
+                <x-alert>Your result on Unit {{ $resultadoPendente['unidade'] }} · Lesson {{ $resultadoPendente['licao'] }} ({{ $resultadoPendente['velocidade'] }} CPM · {{ $resultadoPendente['precisao'] }}%) was saved to your account.</x-alert>
+            @else
+                <div role="status" class="rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+                    Your result on Unit {{ $resultadoPendente['unidade'] }} · Lesson {{ $resultadoPendente['licao'] }} ({{ $resultadoPendente['velocidade'] }} CPM · {{ $resultadoPendente['precisao'] }}%) did not beat your best score, so your best was kept.
+                </div>
+            @endif
+        @endif
+
         <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <p class="text-sm font-medium text-orange-600 dark:text-orange-400">Unit {{ $unidade }} · Lesson {{ $licao }}</p>
