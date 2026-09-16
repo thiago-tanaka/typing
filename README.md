@@ -94,7 +94,6 @@ php artisan serve
 - シーダーでレッスンと管理者ユーザーが作成されます（`database/seeders/DatabaseSeeder.php`）。
 - テストの実行: `php artisan test`
 - デプロイ時は `composer install --no-dev` の後に `npm ci && npm run build` が必要です（ビルド結果は Git で管理していません）。
-- `docker/` はアップグレード前の開発環境で、現在は更新していません。
 
 ## English
 
@@ -178,4 +177,3 @@ php artisan serve
 - The seeders create the lessons and an admin user (`database/seeders/DatabaseSeeder.php`).
 - Run the tests with `php artisan test`.
 - Deployments need `npm ci && npm run build` after `composer install --no-dev`, because the build output is not committed.
-- The `docker/` folder is the original development setup and is no longer maintained.
