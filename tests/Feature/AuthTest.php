@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
@@ -99,5 +101,40 @@ class AuthTest extends TestCase
         $response->assertRedirect('/login');
         $response->assertSessionHasErrors('email');
         $this->assertGuest();
+    }
+
+    public function test_logged_in_user_opening_login_goes_back_to_the_lessons()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->get('/login')->assertRedirect('/');
+    }
+
+    public function test_password_reset_link_resets_the_password()
+    {
+        Notification::fake();
+        $user = User::factory()->create();
+
+        $this->post('/password/email', ['email' => $user->email])->assertSessionHas('status');
+        $this->assertDatabaseHas('password_reset_tokens', ['email' => $user->email]);
+
+        $token = null;
+        Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use (&$token) {
+            $token = $notification->token;
+
+            return true;
+        });
+
+        $response = $this->post('/password/reset', [
+            'token' => $token,
+            'email' => $user->email,
+            'password' => 'nova-senha-123',
+            'password_confirmation' => 'nova-senha-123',
+        ]);
+
+        $response->assertRedirect('/');
+        $this->assertAuthenticatedAs($user);
+        $this->assertTrue(Hash::check('nova-senha-123', $user->fresh()->password));
+        $this->assertDatabaseMissing('password_reset_tokens', ['email' => $user->email]);
     }
 }
