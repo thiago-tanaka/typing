@@ -34,8 +34,8 @@ A web app to practice touch typing.
 | Laravel | 8.83 | 13.31 |
 | フロントエンド | Vue 2 + Vuetify 2 + Bootstrap 4 + jQuery | Vue 3 + Tailwind CSS 4 |
 | ビルド | laravel-mix（ビルド済みファイルを Git で管理） | Vite 8 |
-| 配信する JS / CSS | 1.1 MB / 680 kB | 83 kB / 42 kB |
-| テスト | サンプルのみ（PHPUnit 9） | 37 件（PHPUnit 12） |
+| 配信する JS / CSS | 1.1 MB / 680 kB | 89 kB / 47 kB |
+| テスト | サンプルのみ（PHPUnit 9） | 42 件（PHPUnit 12） |
 | 既知の脆弱性（`composer audit`） | あり | なし |
 
 ### バージョンアップの進め方
@@ -43,7 +43,7 @@ A web app to practice touch typing.
 1. **現在の動作を先にテストで固定** — アップグレード前の Laravel 8 上で、レッスン画面、スコア保存のルール、ユーザー登録とメール認証、管理画面の動作を確認する特性テスト（characterization test）を書きました。
 2. **1 バージョンずつ更新** — 8 → 9 → 10 → 11 → 12 → 13 を 1 ステップ 1 コミットにして、毎回すべてのテストが通ることを確認しました。
 3. **公式アップグレードガイドを項目ごとに確認** — 対応した変更と、このアプリに該当しなかった項目を各コミットメッセージに記録しています。
-4. **既存の構成を維持** — ガイドの推奨どおり、Laravel 11 以降の新しいディレクトリ構成には移行せず、HTTP カーネルやサービスプロバイダーはそのままにしています。
+4. **アップグレード中は既存の構成を維持し、完了後に整理** — 各ステップではガイドのとおり HTTP カーネル、サービスプロバイダー、設定ファイルをそのまま残し、コミットの変更をそのバージョンへの対応だけにしました。アップグレード完了後に Laravel 11 以降の構成（`bootstrap/app.php`）へ移行し、フレームワークが標準で提供するファイルや使われなくなったファイル（旧 Docker 環境など）を削除しました。
 5. **実際のブラウザで確認** — Laravel 13 の新しい CSRF 保護（`PreventRequestForgery`）が関わるログイン、スコア保存、管理画面での保存、ログアウトをブラウザで確認しました。
 
 途中で見つかった問題は、アップグレードとは別のコミットで修正しています。例: Symfony Mailer への移行後、`MAIL_FROM_ADDRESS` が未設定だとユーザー登録時のメール送信が 500 エラーになる問題。
@@ -56,6 +56,8 @@ A web app to practice touch typing.
 | [`10824ba`](https://github.com/thiago-tanaka/typing/commit/10824ba) | Laravel 11（PHPUnit 11、既存の構成を維持） |
 | [`666868b`](https://github.com/thiago-tanaka/typing/commit/666868b) | Laravel 12 |
 | [`21d9702`](https://github.com/thiago-tanaka/typing/commit/21d9702) | Laravel 13（PHP 8.3 以上、CSRF ミドルウェアの新しい名前） |
+| [`38e38c2`](https://github.com/thiago-tanaka/typing/commit/38e38c2) | Laravel 11 以降の構成に移行（`bootstrap/app.php`） |
+| [`fc56a4b`](https://github.com/thiago-tanaka/typing/commit/fc56a4b) | フレームワーク標準と同じ設定ファイルと翻訳ファイルを削除 |
 
 ### フロントエンドの刷新
 
@@ -117,8 +119,8 @@ The app was built with Laravel 8 in 2021, upgraded step by step to Laravel 13, a
 | Laravel | 8.83 | 13.31 |
 | Frontend | Vue 2 + Vuetify 2 + Bootstrap 4 + jQuery | Vue 3 + Tailwind CSS 4 |
 | Build | laravel-mix (compiled files committed to Git) | Vite 8 |
-| JS / CSS served | 1.1 MB / 680 kB | 83 kB / 42 kB |
-| Tests | example tests only (PHPUnit 9) | 37 tests (PHPUnit 12) |
+| JS / CSS served | 1.1 MB / 680 kB | 89 kB / 47 kB |
+| Tests | example tests only (PHPUnit 9) | 42 tests (PHPUnit 12) |
 | Known vulnerabilities (`composer audit`) | yes | none |
 
 ### How the upgrade was done
@@ -126,7 +128,7 @@ The app was built with Laravel 8 in 2021, upgraded step by step to Laravel 13, a
 1. **Lock in the current behavior first.** Before touching the framework, characterization tests were written on Laravel 8 for the lesson pages, the score saving rules, registration with email verification, and the admin area.
 2. **One version at a time.** Each step (8 → 9 → 10 → 11 → 12 → 13) is a single commit, and all tests pass after every step.
 3. **Follow the official upgrade guides item by item.** Each commit message lists what changed and which items did not apply to this app.
-4. **Keep the existing structure.** As the guide recommends, the app keeps its HTTP kernel and service providers instead of moving to the slim application structure of Laravel 11.
+4. **Keep the structure during the upgrade, clean up after.** As the guide allows, every step kept the HTTP kernel, service providers and config files, so each commit only has the changes for that version. Once the upgrade was done, the app moved to the Laravel 11+ structure (`bootstrap/app.php`) and dropped the files the framework already provides, along with files that were no longer used, such as the old Docker setup.
 5. **Check in a real browser.** Login, saving a score, saving from the admin page and logout were tested with the new request forgery protection of Laravel 13 (`PreventRequestForgery`).
 
 Problems found along the way were fixed in separate commits, for example registration failing with a 500 error after the move to Symfony Mailer when `MAIL_FROM_ADDRESS` is not set.
@@ -139,6 +141,8 @@ Problems found along the way were fixed in separate commits, for example registr
 | [`10824ba`](https://github.com/thiago-tanaka/typing/commit/10824ba) | Laravel 11 (PHPUnit 11, existing structure kept) |
 | [`666868b`](https://github.com/thiago-tanaka/typing/commit/666868b) | Laravel 12 |
 | [`21d9702`](https://github.com/thiago-tanaka/typing/commit/21d9702) | Laravel 13 (PHP 8.3+, new name of the CSRF middleware) |
+| [`38e38c2`](https://github.com/thiago-tanaka/typing/commit/38e38c2) | Move to the Laravel 11+ structure (`bootstrap/app.php`) |
+| [`fc56a4b`](https://github.com/thiago-tanaka/typing/commit/fc56a4b) | Drop the config and translation files the framework already provides |
 
 ### The new frontend
 
