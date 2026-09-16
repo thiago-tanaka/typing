@@ -1,23 +1,20 @@
 {
-    "name": "laravel/laravel",
+    "name": "thiago-tanaka/typing",
     "type": "project",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "description": "A touch typing course built with Laravel and Vue.",
+    "keywords": ["typing", "laravel", "vue"],
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "laravel/ui": "^4.6.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
-        "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
-        "phpunit/phpunit": "^12.0",
-        "spatie/laravel-ignition": "^2.11"
+        "phpunit/phpunit": "^12.0"
     },
     "autoload": {
         "psr-4": {
